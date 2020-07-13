@@ -38,6 +38,5 @@ RUN apt-get -y --purge --auto-remove remove make gcc gfortran g++
 RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /tmp/* /var/tmp/*
 
 # Add data
-ADD . /usr/local/share/mFam
-WORKDIR /usr/local/share/mFam/data
-
+ADD . /data
+WORKDIR /data

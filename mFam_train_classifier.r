@@ -34,7 +34,7 @@ Sys.setlocale(category="LC_ALL", locale="C")
 # ---------- Global variables ----------
 # Working directory
 #setwd("/usr/local/share/mFam/")
-setwd("~/Desktop/Projekte/Habilitation/de.NBI/Classifier_mFam/")
+setwd("~/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/")
 
 
 
@@ -51,23 +51,42 @@ source("MFam/SubstanceClassClassifier_classifier.R")
 
 
 # ---------- MetFamily and MFam Parameter ----------
+# Library
+thisLibrary <- "./data/2018-02-13_neg_11328_MoNA_Spectra.msp"
+#thisLibrary <- "./data/2018-02-13_pos_21908_MoNA_Spectra.msp"
+annoFile <- "./data/2019-05-23_Scaffolds.tsv"
+
+# Repeated random subsampling validation
+minimumNumberOfPosSpectraPerClass <- 10
+minimumNumberOfNegSpectraPerClass <- 10
+numberOfDataSetDecompositions <- 10
+proportionTraining <- 0.7
+#fragmentColumnSelectionMethod <- "AbsoluteProportion"
+#fragmentColumnSelectionMethod <- "ProportionOfSumOfFragmentPresence"
+fragmentColumnSelectionMethod <- "ProportionOfHighestFragmentPresence"
+minimumProportionOfPositiveFragments <- 0.05
+
+thisMethod <- "method=ColSumsPos; smoothIntensities=FALSE"
+#thisMethod <- "method=caret; smoothIntensities=FALSE, modelName=binda"
+
+# I/O
+resultFolderForClassifiers       <- "./data/Classifier_ROC_Analysis"
+resultFolderForMetfamilyProjects <- "./data/MetFamily_class_projects"
+
 # Cache
 reParseMsp              <- FALSE
 reProcessAnno           <- FALSE
 reProcessFragmentMatrix <- FALSE
 reProcessLibrary        <- FALSE
 
-# I/O
-resultFolderForClassifiers       <- "./data/Classifier_ROC_Analysis"
-resultFolderForMetfamilyProjects <- "./data/MetFamily_class_projects"
-
+# MetFamily
 progress <- FALSE
 outDetail <- FALSE
 maximumNumberOfScores <- 10000
 removeRareFragments <- FALSE
 
 builtClassifiers       <- TRUE
-writeMetFamilyProjects <- FALSE ####TRUE
+writeMetFamilyProjects <- FALSE ###################TRUE
 calculateRMDstatistics <- FALSE
 computeFragmentFisherTest <- FALSE
 
@@ -92,27 +111,10 @@ classOfClass <- c(
 #thisClass <- "Organic compounds; Lipids and lipid-like molecules; Prenol lipids; Terpene lactones; Sesquiterpene lactones"
 thisClass <- NULL
 
-# Repeated random subsampling validation
-minimumNumberOfPosSpectraPerClass <- 10
-minimumNumberOfNegSpectraPerClass <- 10
-numberOfDataSetDecompositions <- 10
-proportionTraining <- 0.7
-#fragmentColumnSelectionMethod <- "AbsoluteProportion"
-#fragmentColumnSelectionMethod <- "ProportionOfSumOfFragmentPresence"
-fragmentColumnSelectionMethod <- "ProportionOfHighestFragmentPresence"
-minimumProportionOfPositiveFragments <- 0.05
-
 # Postprocessing
 unitResolution <- FALSE
 
 # Constraints
-# Library one
-#thisLibrary    <- NULL
-#thisLibrary    <- "./data/180912_MoNA-export-LC-MS-MS_Negative_Mode_processed.msp"
-#thisLibrary <- "./data/2018-02-13_09_14_10_neg_11328_MoNA-export-LC-MS-MS_Spectra.msp"
-thisLibrary <- "./data/2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp"
-annoFile <- "./data/190523_MSMS_HR_someScaffolds_completed.tsv"
-
 splitClasses <- FALSE
 splitClassesParameterSet <- list(
 	minimumNumberOfChildren = 5,
@@ -121,9 +123,6 @@ splitClassesParameterSet <- list(
 	#distanceMeasure = "Jaccard",
 	clusterMethod = "ward.D"
 )
-
-thisMethod <- "method=ColSumsPos; smoothIntensities=FALSE"
-#thisMethod <- "method=caret; smoothIntensities=FALSE, modelName=binda"
 
 thisParameterSet <- list(
 	## parse msp
@@ -134,8 +133,7 @@ thisParameterSet <- list(
 	## built fragment matrix
 	mzDeviationAbsolute_grouping                      = 0.01,
 	mzDeviationInPPM_grouping                         = 10,
-	#doMs2PeakGroupDeisotoping                         = TRUE,
-	doMs2PeakGroupDeisotoping                         = FALSE,
+	doMs2PeakGroupDeisotoping                         = TRUE,
 	mzDeviationAbsolute_ms2PeakGroupDeisotoping       = 0.01,
 	mzDeviationInPPM_ms2PeakGroupDeisotoping          = 10,
 	proportionOfMatchingPeaks_ms2PeakGroupDeisotoping = 0.9
@@ -144,51 +142,51 @@ thisParameterSet <- list(
 # Box parameters
 parameterSetAll <- list(
 	# I/O
-	progress              = progress,
-	outDetail             = outDetail,
-	resultFolderForClassifiers          = resultFolderForClassifiers,
-	resultFolderForMetfamilyProjects = resultFolderForMetfamilyProjects,
-	writeClassifiers      = writeClassifiers,
-	writeResults          = writeResults,
-	outSuffix             = outSuffix,
-	maximumNumberOfScores = maximumNumberOfScores,
-	removeRareFragments   = removeRareFragments,
-	builtClassifiers      = builtClassifiers,
-	writeMetFamilyProjects = writeMetFamilyProjects,
-	calculateRMDstatistics = calculateRMDstatistics,
+	progress                          = progress,
+	outDetail                         = outDetail,
+	resultFolderForClassifiers        = resultFolderForClassifiers,
+	resultFolderForMetfamilyProjects  = resultFolderForMetfamilyProjects,
+	writeClassifiers                  = writeClassifiers,
+	writeResults                      = writeResults,
+	outSuffix                         = outSuffix,
+	maximumNumberOfScores             = maximumNumberOfScores,
+	removeRareFragments               = removeRareFragments,
+	builtClassifiers                  = builtClassifiers,
+	writeMetFamilyProjects            = writeMetFamilyProjects,
+	calculateRMDstatistics            = calculateRMDstatistics,
 	
 	# Classes
 	mergeDuplicatedSpectra              = mergeDuplicatedSpectra,
 	takeSpectraWithMaximumNumberOfPeaks = takeSpectraWithMaximumNumberOfPeaks,
-	classOfClass = classOfClass,
-	thisClass = thisClass,
-	splitClasses = splitClasses,
-	splitClassesParameterSet = splitClassesParameterSet,
+	classOfClass                        = classOfClass,
+	thisClass                           = thisClass,
+	splitClasses                        = splitClasses,
+	splitClassesParameterSet            = splitClassesParameterSet,
 	##computeFragmentFisherTest         = computeFragmentFisherTest,
 	
 	# Repeated random subsampling validation
-	minimumNumberOfPosSpectraPerClass = minimumNumberOfPosSpectraPerClass,
-	minimumNumberOfNegSpectraPerClass = minimumNumberOfNegSpectraPerClass,
-	numberOfDataSetDecompositions     = numberOfDataSetDecompositions,
-	proportionTraining                = proportionTraining,
-	fragmentColumnSelectionMethod     = fragmentColumnSelectionMethod,
+	minimumNumberOfPosSpectraPerClass    = minimumNumberOfPosSpectraPerClass,
+	minimumNumberOfNegSpectraPerClass    = minimumNumberOfNegSpectraPerClass,
+	numberOfDataSetDecompositions        = numberOfDataSetDecompositions,
+	proportionTraining                   = proportionTraining,
+	fragmentColumnSelectionMethod        = fragmentColumnSelectionMethod,
 	minimumProportionOfPositiveFragments = minimumProportionOfPositiveFragments,
 	
 	# Postprocessing
-	unitResolution                    = unitResolution,
+	unitResolution = unitResolution,
 	
 	# Cache
-	reParseMsp = reParseMsp,
-	reProcessAnno = reProcessAnno,
-	reProcessLibrary = reProcessLibrary,
+	reParseMsp              = reParseMsp,
+	reProcessAnno           = reProcessAnno,
+	reProcessLibrary        = reProcessLibrary,
 	reProcessFragmentMatrix = reProcessFragmentMatrix,
 	
 	# Constraints
 	# Library one
-	annoFile = annoFile,
-	thisLibrary = thisLibrary,
-	thisParameterSet = thisParameterSet,
-	thisMethod  = thisMethod
+	annoFile          = annoFile,
+	thisLibrary       = thisLibrary,
+	thisParameterSet  = thisParameterSet,
+	thisMethod        = thisMethod
 )
 
 
