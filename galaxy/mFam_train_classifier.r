@@ -1,3 +1,18 @@
+#!/usr/bin/env Rscript
+
+# Setup R error handling to go to stderr
+options(show.error.messages=F, error=function() { cat(geterrmessage(), file=stderr()); q("no",1,F) } )
+
+# Set locales and encoding
+loc <- Sys.setlocale("LC_MESSAGES", "en_US.UTF-8")
+loc <- Sys.setlocale(category="LC_ALL", locale="C")
+options(encoding="UTF-8")
+
+# Set options
+options(stringAsfactors=FALSE, useFancyQuotes=FALSE)
+
+
+
 # ---------- Preparations ----------
 # Load libraries
 library(SparseM)
@@ -25,16 +40,33 @@ library(ontologyIndex)
 library(tools)
 
 
-# Set encoding of files and set locale
-options(encoding="UTF-8")
-Sys.setlocale(category="LC_ALL", locale="C")
+
+# ---------- Arguments and user variables ----------
+# Take in trailing command line arguments
+args <- commandArgs(trailingOnly=TRUE)
+if (length(args) < 3) {
+	print("Error! No or not enough arguments given.")
+	print("Usage: $0 working_dir classifier_library annotation_file output_dir")
+	quit(save="no", status=1, runLast=FALSE)
+}
+
+# Working directory
+setwd(as.character(args[1]))
+
+# Classifier Library, "./data/2018-02-13_neg_11328_MoNA_Spectra.msp", "./data/2018-02-13_pos_21908_MoNA_Spectra.msp"
+thisLibrary <- as.character(args[2])
+
+# Annotation file, "./data/2019-05-23_Scaffolds.tsv"
+annoFile <- as.character(args[3])
+
+# Output directory with results, "./data/Classifier_ROC_Analysis"
+resultFolderForClassifiers <- as.character(args[4])
 
 
 
 # ---------- Global variables ----------
 # Working directory
-#setwd("/usr/local/share/mFam/")
-setwd("~/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/")
+#setwd("~/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/")
 
 
 
@@ -52,9 +84,9 @@ source("MFam/SubstanceClassClassifier_classifier.R")
 
 # ---------- MetFamily and MFam Parameter ----------
 # Library
-thisLibrary <- "./data/2018-02-13_neg_11328_MoNA_Spectra.msp"
+#thisLibrary <- "./data/2018-02-13_neg_11328_MoNA_Spectra.msp"
 #thisLibrary <- "./data/2018-02-13_pos_21908_MoNA_Spectra.msp"
-annoFile <- "./data/2019-05-23_Scaffolds.tsv"
+#annoFile <- "./data/2019-05-23_Scaffolds.tsv"
 
 # Repeated random subsampling validation
 minimumNumberOfPosSpectraPerClass <- 10
@@ -70,7 +102,7 @@ thisMethod <- "method=ColSumsPos; smoothIntensities=FALSE"
 #thisMethod <- "method=caret; smoothIntensities=FALSE, modelName=binda"
 
 # I/O
-resultFolderForClassifiers       <- "./data/Classifier_ROC_Analysis"
+#resultFolderForClassifiers       <- "./data/Classifier_ROC_Analysis"
 resultFolderForMetfamilyProjects <- "./data/MetFamily_class_projects"
 
 # Cache

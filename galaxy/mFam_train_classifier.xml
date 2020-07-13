@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<tool id="mfam-train-classifier" name="mfam-train-classifier" version="0.1">
+  <requirements>
+    <container type="docker">korseby/mfam-train-classifier</container>
+  </requirements>
+  <description>Train mFam Classifier</description>
+  <stdio>
+    <regex match="" source="stderr" level="warning" description="R messages" />
+    <exit_code range="1:" level="fatal" description="Tool error" />
+  </stdio>
+  <command><![CDATA[
+echo "INPUT"
+echo "    workingdir: /data/";
+echo "    classlib: $classlib";
+echo "    annofile: $annofile";
+echo "";
+echo "OUTPUT";
+echo "    outputdir: /data/data/Classifier_ROC_Analysis/";
+echo "    mfamrdata: $mfamrdata";
+echo "    mfamres: $mfamres";
+echo "    mfaminfo: $mfaminfo";
+;
+mkdir -p /data/data/Classifier_ROC_Analysis;
+mkdir -p /data/data/MetFamily_class_projects;
+mFam_train_classifier.r /data/ $classlib $annofile /data/data/Classifier_ROC_Analysis/;
+cp -f /data/data/Classifier_ROC_Analysis/*.RData $mfamrdata;
+cp -f /data/data/Classifier_ROC_Analysis/*.tsv $mfamres;
+cp -f /data/data/Classifier_ROC_Analysis/*.txt $mfaminfo;
+  ]]>
+  </command>
+  <inputs>
+    <param name="classlib" type="data" format="msp" optional="False" label="mFam Classifier Library" help="The library in MSP format used for training the mFam Classifier" />
+    <param name="annofile" type="data" format="tabular" optional="False" label="mFam Annotation List" help="The annotation list in TSV format used for training definitions of the mFam Classifier" />
+  </inputs>
+  
+  <outputs>
+    <data name="mfamrdata" type="data" format="rdata" label="mFam Classifier" />
+    <data name="mfamres" type="data" format="tabular" label="mFam Classifier Performance" />
+    <data name="mfaminfo" type="data" format="txt" label="mFam Classifier Information" />
+  </outputs>
+  <help>
+.. class:: infomark
+
+**Authors**
+
+| **Kristian Peters (kpeters@ipb-halle.de)** wrote and maintains this module.
+
+---------------------------------------------------
+
+=====================
+Train mFam Classifier
+=====================
+
+-----------
+Description
+-----------
+
+        | Train the mFam Classifier
+        | 
+
+-----------
+Input files
+-----------
+
++---------------------------------------------+------------+
+| File                                        |   Format   |
++=============================================+============+
+| 1)  Classification Library                  | 1) MSP     |
+| 2)  Annotation List                         | 2) TSV     |
++---------------------------------------------+------------+
+
+------------
+Output files
+------------
+
++----------------------------------------------------------+----------+
+| Files                                                    | Format   |
++==========================================================+==========+
+| 1) mFam Classifier                                       | 1) RData |
+| 2) mFam Classifier Performance                           | 2) TSV   |
+| 3) mFam Classifier Information                           | 3) TXT   |
++----------------------------------------------------------+----------+
+
+---------------------------------------------------
+
+-------
+Changes
+-------
+
+Version: 0.1
+        | Initial release for refactorisation of Hendrik Treutler's code
+        | 
+
+  </help>
+</tool>
