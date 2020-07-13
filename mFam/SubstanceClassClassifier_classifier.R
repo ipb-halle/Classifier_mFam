@@ -10,34 +10,34 @@
 #           predictions$Class2[index_class1],
 #           curve = TRUE)
 #}
-if(FALSE){
-auprcSummary <- function(data, lev = NULL, model = NULL){
-  index_class1 <- data$obs == "p"
-  index_class2 <- data$obs == "m"
-  
-  the_curve <- pr.curve(scores.class0 = data$p[index_class2], scores.class1 = data$p[index_class1], curve = FALSE)
-  
-  out <- the_curve$auc.integral
-  names(out) <- "AUPRC"
-  
-  out
-}
-twoClassSummary2 <- function(data, lev = NULL, model = NULL) 
-{
-  lvls <- levels(data$obs)
-  if (length(lvls) > 2) 
-    stop(paste("Your outcome has", length(lvls), "levels. The twoClassSummary() function isn't appropriate."))
-  requireNamespaceQuietStop("ModelMetrics")
-  if (!all(levels(data[, "pred"]) == lvls)) 
-    stop("levels of observed and predicted data do not match")
-  rocAUC <- ModelMetrics::auc(ifelse(data$obs == lev[2], 0, 
-                                     1), data[, lvls[1]])
-  out <- c(rocAUC, sensitivity(data[, "pred"], data[, "obs"], 
-                               lev[1]), specificity(data[, "pred"], data[, "obs"], lev[2]))
-  names(out) <- c("ROC", "Sens", "Spec")
-  out
-}
-}
+#if(FALSE){
+#auprcSummary <- function(data, lev = NULL, model = NULL){
+#  index_class1 <- data$obs == "p"
+#  index_class2 <- data$obs == "m"
+#  
+#  the_curve <- pr.curve(scores.class0 = data$p[index_class2], scores.class1 = data$p[index_class1], curve = FALSE)
+#  
+#  out <- the_curve$auc.integral
+#  names(out) <- "AUPRC"
+#  
+#  out
+#}
+#twoClassSummary2 <- function(data, lev = NULL, model = NULL) 
+#{
+#  lvls <- levels(data$obs)
+#  if (length(lvls) > 2) 
+#    stop(paste("Your outcome has", length(lvls), "levels. The twoClassSummary() function isn't appropriate."))
+#  requireNamespaceQuietStop("ModelMetrics")
+#  if (!all(levels(data[, "pred"]) == lvls)) 
+#    stop("levels of observed and predicted data do not match")
+#  rocAUC <- ModelMetrics::auc(ifelse(data$obs == lev[2], 0, 
+#                                     1), data[, lvls[1]])
+#  out <- c(rocAUC, sensitivity(data[, "pred"], data[, "obs"], 
+#                               lev[1]), specificity(data[, "pred"], data[, "obs"], lev[2]))
+#  names(out) <- c("ROC", "Sens", "Spec")
+#  out
+#}
+#}
 
 caret_classifier <- list(
   train = function(matrix_train, classes_pm_train, modelName, classWeights){
@@ -224,28 +224,28 @@ caret_classifier_stacked <- list(
     
     #caret::getModelInfo()[[modelName]]
     
-    if(FALSE){
-    fastModels2 <- c(
-      "slda",
-      #"lda2",
-      "lda",
-      "pam",
-      #"simpls",
-      "pls",
-      #"kernelpls",
-      #"widekernelpls",
-      "binda",
-      #"gamLoess",
-      "OneR",
-      "rpart2",
-      "svmLinear",
-      "rpart1SE",
-      "glm",
-      "gam",
-      "C5.0Tree",
-      "C5.0Rules"
-    )
-    }
+#    if(FALSE){
+#    fastModels2 <- c(
+#      "slda",
+#      #"lda2",
+#      "lda",
+#      "pam",
+#      #"simpls",
+#      "pls",
+#      #"kernelpls",
+#      #"widekernelpls",
+#      "binda",
+#      #"gamLoess",
+#      "OneR",
+#      "rpart2",
+#      "svmLinear",
+#      "rpart1SE",
+#      "glm",
+#      "gam",
+#      "C5.0Tree",
+#      "C5.0Rules"
+#    )
+#    }
     #modelNames <- paste(fastModels2, collapse = "|")
     modelNameVector <- strsplit(x = modelNames, split = "\\|")[[1]]
     
@@ -270,46 +270,46 @@ caret_classifier_stacked <- list(
     ## ROC per model
     #unlist(lapply(X = model_list, FUN = function(x){max(x$results$ROC)}))
     
-    if(FALSE){
-    for(modelName in modelNameVector){
-      print(modelName)
-      tryCatch(expr = {
-        ctrl <- caret::trainControl(
-          #method = "none",
-          method = "repeatedcv", 
-          number = 5,
-          repeats = 1, 
-          classProbs = TRUE, 
-          summaryFunction = caret::twoClassSummary, 
-          verboseIter = FALSE,
-          allowParallel = FALSE
-        )
-        
-        #caret::getModelInfo()[[modelName]]
-        
-        #set.seed(1)
-        #startTime <<- Sys.time()
-        classifier <- caret::train(
-          #class ~ .,
-          #data = matrix_train_caret,
-          x = matrix_train_caret2,
-          y = class,
-          method = modelName,
-          tuneLength = 10,
-          trControl = ctrl,
-          metric = "ROC",
-          #preProc = c("center", "scale")
-          preProc = NULL
-        )
-        print(classifier$results$ROC)
-      },error = function(e){
-        print(paste("error", e))
-      },warning = function(w){
-        print(paste("warning", w))
-      }
-      )
-    }
-    }
+#    if(FALSE){
+#    for(modelName in modelNameVector){
+#      print(modelName)
+#      tryCatch(expr = {
+#        ctrl <- caret::trainControl(
+#          #method = "none",
+#          method = "repeatedcv", 
+#          number = 5,
+#          repeats = 1, 
+#          classProbs = TRUE, 
+#          summaryFunction = caret::twoClassSummary, 
+#          verboseIter = FALSE,
+#          allowParallel = FALSE
+#        )
+#        
+#        #caret::getModelInfo()[[modelName]]
+#        
+#        #set.seed(1)
+#        #startTime <<- Sys.time()
+#        classifier <- caret::train(
+#          #class ~ .,
+#          #data = matrix_train_caret,
+#          x = matrix_train_caret2,
+#          y = class,
+#          method = modelName,
+#          tuneLength = 10,
+#          trControl = ctrl,
+#          metric = "ROC",
+#          #preProc = c("center", "scale")
+#          preProc = NULL
+#        )
+#        print(classifier$results$ROC)
+#      },error = function(e){
+#        print(paste("error", e))
+#      },warning = function(w){
+#        print(paste("warning", w))
+#      }
+#      )
+#    }
+#    }
     
     
     #endTime <- Sys.time()
@@ -320,18 +320,18 @@ caret_classifier_stacked <- list(
     #tmp[tmp < 0.97 & tmp > -0.97] <- 0
     #tmp
     
-    if(FALSE){
-    ## ensembl
-    greedy_ensemble <- caretEnsemble(
-      all.models = model_list, 
-      metric = ifelse(test = useRoc, yes = "ROC", no = "AUC"), 
-      trControl = trainControl(
-        number=5,
-        summaryFunction=twoClassSummary,
-        classProbs=TRUE
-      ))
-    #summary(greedy_ensemble)
-    }
+#    if(FALSE){
+#    ## ensembl
+#    greedy_ensemble <- caretEnsemble(
+#      all.models = model_list, 
+#      metric = ifelse(test = useRoc, yes = "ROC", no = "AUC"), 
+#      trControl = trainControl(
+#        number=5,
+#        summaryFunction=twoClassSummary,
+#        classProbs=TRUE
+#      ))
+#    #summary(greedy_ensemble)
+#    }
     
     ## stacking
     #sink("/dev/null")
@@ -391,16 +391,16 @@ caret_classifier_stacked <- list(
 
 splsda_classifier <- list(
   train = function(matrix_train, classes_pm_train){
-    if(FALSE){
-      posRows <- classes_pm_train=="+"
-      colSumPos <- Matrix::colSums(x = matrix_train[ posRows, ])
-      #colSumNeg <- Matrix::colSums(x = matrix_train[!posRows, ])
-      colFrequencyPos <- colSumPos / sum( posRows)
-      selectedColumns <- colFrequencyPos >= 0.05
-      
-      matrix_train2 <- matrix_train
-      matrix_train2[, !selectedColumns] <- 0
-    }
+#    if(FALSE){
+#      posRows <- classes_pm_train=="+"
+#      colSumPos <- Matrix::colSums(x = matrix_train[ posRows, ])
+#      #colSumNeg <- Matrix::colSums(x = matrix_train[!posRows, ])
+#      colFrequencyPos <- colSumPos / sum( posRows)
+#      selectedColumns <- colFrequencyPos >= 0.05
+#      
+#      matrix_train2 <- matrix_train
+#      matrix_train2[, !selectedColumns] <- 0
+#    }
     
     rownames(matrix_train) <- seq_len(nrow(matrix_train))
     
@@ -461,16 +461,16 @@ svm_classifier <- list(
 )
 lda_classifier <- list(
   train = function(matrix_train, classes_pm_train){
-    if(FALSE){
-      posRows <- classes_pm_train=="+"
-      colSumPos <- Matrix::colSums(x = matrix_train[ posRows, ])
-      #colSumNeg <- Matrix::colSums(x = matrix_train[!posRows, ])
-      colFrequencyPos <- colSumPos / sum( posRows)
-      selectedColumns <- colFrequencyPos >= 0.05
-      
-      matrix_train2 <- matrix_train[, selectedColumns]
-      #matrix_train2[, !selectedColumns] <- 0
-    }
+#    if(FALSE){
+#      posRows <- classes_pm_train=="+"
+#      colSumPos <- Matrix::colSums(x = matrix_train[ posRows, ])
+#      #colSumNeg <- Matrix::colSums(x = matrix_train[!posRows, ])
+#      colFrequencyPos <- colSumPos / sum( posRows)
+#      selectedColumns <- colFrequencyPos >= 0.05
+#      
+#      matrix_train2 <- matrix_train[, selectedColumns]
+#      #matrix_train2[, !selectedColumns] <- 0
+#    }
     #matrix_train3 <- cbind(matrix_train2, rep(x = 0, times = nrow(matrix_train2)))
     #colnames(matrix_train3)[[ncol(matrix_train3)]] <- "class"
     #matrix_train3[posRows, "class"] <- 1
@@ -790,11 +790,11 @@ tensorflow_classifier <- list(
     
     ##########################
     # regularization: This is a good beta value to start with
-    if(FALSE){
-      regularizer_beta = 0.01
-      regularizer = tf$nn$l2_loss(tf$concat(values = list(inputToHidden_weights,tf$transpose(hiddenToOutput_weights)), axis = 0L))
-      cross_entropy = tf$reduce_mean(cross_entropy + regularizer_beta * regularizer)
-    }
+#    if(FALSE){
+#      regularizer_beta = 0.01
+#      regularizer = tf$nn$l2_loss(tf$concat(values = list(inputToHidden_weights,tf$transpose(hiddenToOutput_weights)), axis = 0L))
+#      cross_entropy = tf$reduce_mean(cross_entropy + regularizer_beta * regularizer)
+#    }
     
     #train_step <- tf$train$AdamOptimizer(learning_rate=learningRate, name = "AdamOptimizer")$minimize(loss = cross_entropy)
     train_step <- tf$train$GradientDescentOptimizer(learning_rate = learningRate, name = "GradientDescentOptimizer")$minimize(loss = cross_entropy)
@@ -968,64 +968,64 @@ predict_Correlation <- function(matrix_train, classes_pm_train, matrix_test, cla
   
   correlations <- cor(x = t(as.matrix(matrix_test)), y = t(as.matrix(matrix_train)), method = corMethod)
   
-  if(FALSE){
-    ## classes
-    switch(linkage,
-           "single"={
-             ## single linkage
-             predicted_classes_pm <- unlist(apply(X = correlations, MARGIN = 1, FUN = function(x){
-               if(all(is.na(x)))
-                 return("-")
-               else{
-                 maxIdx <- which.max(x)
-                 class <- classes_pm_train[maxIdx]
-                 return(class)
-               }
-             }))
-           },
-           "average"={
-             ## average linkage
-             predicted_classes_pm <- unlist(apply(X = correlations, MARGIN = 1, FUN = function(x){
-               if(all(is.na(x)))
-                 return("-")
-               else{
-                 plus  <- x[classes_pm_train=="+"]
-                 minus <- x[classes_pm_train=="-"]
-                 if(mean(plus, na.rm = TRUE) > mean(minus, na.rm = TRUE))
-                   #if(max(plus) > max(minus))
-                   #if(mean(plus) > mean(minus))
-                   return("+")
-                 else
-                   return("-")
-               }
-             }))
-           },
-           "centroid"={
-             ## centroid linkage
-             distPlus  <- as.matrix(dist(matrix_train[classes_pm_train=="+", ]))
-             distMinus <- as.matrix(dist(matrix_train[classes_pm_train=="-", ]))
-             centroidPlus  <- which.min(apply(X = distPlus , MARGIN = 1, FUN = sum))
-             centroidMinus <- which.min(apply(X = distMinus, MARGIN = 1, FUN = sum))
-             centroidPlus  <- which(classes_pm_train=="+")[[centroidPlus]]
-             centroidMinus <- which(classes_pm_train=="-")[[centroidMinus]]
-             
-             predicted_classes_pm <- unlist(apply(X = correlations, MARGIN = 1, FUN = function(x){
-               if(all(is.na(x)))
-                 return("-")
-               else{
-                 #if(x[[centroidPlus]] > x[[centroidMinus]])
-                 if(x[[centroidPlus]] > mean(x[classes_pm_train=="-"], na.rm = TRUE))
-                   #if(max(plus) > max(minus))
-                   #if(mean(plus) > mean(minus))
-                   return("+")
-                 else
-                   return("-")
-               }
-             }))
-           },
-           stop(paste("Unknown linkage (", linkage, ")!", sep = ""))
-    )
-  }
+#  if(FALSE){
+#    ## classes
+#    switch(linkage,
+#           "single"={
+#             ## single linkage
+#             predicted_classes_pm <- unlist(apply(X = correlations, MARGIN = 1, FUN = function(x){
+#               if(all(is.na(x)))
+#                 return("-")
+#               else{
+#                 maxIdx <- which.max(x)
+#                 class <- classes_pm_train[maxIdx]
+#                 return(class)
+#               }
+#             }))
+#           },
+#           "average"={
+#             ## average linkage
+#             predicted_classes_pm <- unlist(apply(X = correlations, MARGIN = 1, FUN = function(x){
+#               if(all(is.na(x)))
+#                 return("-")
+#               else{
+#                 plus  <- x[classes_pm_train=="+"]
+#                 minus <- x[classes_pm_train=="-"]
+#                 if(mean(plus, na.rm = TRUE) > mean(minus, na.rm = TRUE))
+#                   #if(max(plus) > max(minus))
+#                   #if(mean(plus) > mean(minus))
+#                   return("+")
+#                 else
+#                   return("-")
+#               }
+#             }))
+#           },
+#           "centroid"={
+#             ## centroid linkage
+#             distPlus  <- as.matrix(dist(matrix_train[classes_pm_train=="+", ]))
+#             distMinus <- as.matrix(dist(matrix_train[classes_pm_train=="-", ]))
+#             centroidPlus  <- which.min(apply(X = distPlus , MARGIN = 1, FUN = sum))
+#             centroidMinus <- which.min(apply(X = distMinus, MARGIN = 1, FUN = sum))
+#             centroidPlus  <- which(classes_pm_train=="+")[[centroidPlus]]
+#             centroidMinus <- which(classes_pm_train=="-")[[centroidMinus]]
+#             
+#             predicted_classes_pm <- unlist(apply(X = correlations, MARGIN = 1, FUN = function(x){
+#               if(all(is.na(x)))
+#                 return("-")
+#               else{
+#                 #if(x[[centroidPlus]] > x[[centroidMinus]])
+#                 if(x[[centroidPlus]] > mean(x[classes_pm_train=="-"], na.rm = TRUE))
+#                   #if(max(plus) > max(minus))
+#                   #if(mean(plus) > mean(minus))
+#                   return("+")
+#                 else
+#                   return("-")
+#               }
+#             }))
+#           },
+#           stop(paste("Unknown linkage (", linkage, ")!", sep = ""))
+#    )
+#  }
   
   posItems <- classes_pm_train=="+"
   negItems <- classes_pm_train=="-"
@@ -1151,11 +1151,11 @@ predict_ColSums <- function(matrix_train, classes_pm_train, matrix_test, classes
   
   colSums <- (colSumPos / sum( posRows)) - (colSumNeg / sum(!posRows))
   
-  if(FALSE){
-    ## top ten
-    names(colSums) <- colnames(matrix_train)
-    tail(x = sort(colSums), n = 10)
-  }
+#  if(FALSE){
+#    ## top ten
+#    names(colSums) <- colnames(matrix_train)
+#    tail(x = sort(colSums), n = 10)
+#  }
   
   #scores <- apply(X = matrix_test, MARGIN = 1, FUN = function(x){
   #  sum(x * colSums)

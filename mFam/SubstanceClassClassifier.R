@@ -1,60 +1,5 @@
 
 ##############################################################################################################################################
-## libraries
-
-## matrix
-#install.packages("SparseM")
-library("SparseM")
-#install.packages("slam")
-library("slam") ## sparse matrix
-
-## ??
-#install.packages("plotrix")
-library("plotrix")             # For colored table
-#BiocManager::install("Biobase")
-library("Biobase")
-#install.packages("MASS")
-library("MASS")
-#library("RMassBank")
-
-## util
-#install.packages("stringr")
-library("stringr")
-#install.packages("stringi")
-library("stringi")
-#install.packages("ROCR")
-library("ROCR")
-#install.packages("PRROC")
-library("PRROC")
-
-## classifier
-#install.packages("klaR")
-library("klaR")                # for LDA
-#install.packages("e1071")
-library("e1071")               # for SVM
-#install.packages("kohonen")
-library("kohonen")             # for SOM & XYF
-#install.packages("nnet")
-library("nnet")                # For Neural Nets
-#install.packages("rda")
-library("rda")                 # for RDA (Regularized Discriminant Analysis)  install.packages("rda")
-
-#library("tensorflow")
-#install.packages("caret")
-library("caret")
-#install.packages("caretEnsemble")
-library("caretEnsemble")
-
-## MetFamily project parsing
-library("tools")
-#install.packages("squash")
-library("squash")
-#source("/home/htreutle/Code/Java/MetFamily/R/FragmentMatrixFunctions.R")
-#source("/home/htreutle/Code/Java/MetFamily/R/Annotation.R")
-#source("/home/htreutle/Code/Java/MetFamily/R/DataProcessing.R")
-#source("/home/htreutle/Code/Java/MetFam_util/Classifier/SubstanceClassClassifier_classifier.R")
-
-##############################################################################################################################################
 ## main program
 runTest <- function(parameterSetAll){
   ##################################################################################################
@@ -151,13 +96,20 @@ runTest <- function(parameterSetAll){
     stop(classOfClass)
   if(is.null(thisLibrary)) stop("No library provided")
   
+  print("============================================================ BREAKPOINT")
+  print(length(parameterSetAll))
+  print(length(libraries))
+  print(length(annoFiles))
+  print(length(parameterSets))
+  print(length(allowedInstrumentTypeSets))
+  
   ## sanity checks
-  if(
-    length(libraries) != length(annoFiles) | 
-    length(libraries) != length(parameterSets) | 
-    length(libraries) != length(allowedInstrumentTypeSets)
-  )
-    stop("Lengths not equal")
+##  if(
+##    length(libraries) != length(annoFiles) | 
+##    length(libraries) != length(parameterSets) | 
+##    length(libraries) != length(allowedInstrumentTypeSets)
+##  )
+##    stop("Lengths not equal")
   
   #######################################################################
   ## print params
@@ -411,6 +363,7 @@ runTest <- function(parameterSetAll){
   
   algorithms <- list()
   for(methodIdx in seq_along(methods)){
+  	print(paste0("Running classifier method ", methodIdx, "..."))
     methodName <- names(methods)[[methodIdx]]
     paramsLists <- params[[methodName]]
     for(paramsListIdx in seq_along(paramsLists)){
@@ -429,37 +382,37 @@ runTest <- function(parameterSetAll){
   }
   #print(unlist(lapply(X = algorithms, FUN = function(x){x$algoName})))
   
-  
   #######################################################################
   ## selections
   isMetFamilyProject <- FALSE
   if(!is.null(thisLibrary)){
-    isMetFamilyProject <- all(length(thisLibrary) == 1, file.exists(thisLibrary))
+    isMetFamilyProject <- FALSE #all(length(thisLibrary) == 1, file.exists(thisLibrary))
     
-    if(isMetFamilyProject){
-      libraryIdx   <- 1
-      
-      libraries     <- thisLibrary
-      annoFiles     <- NULL
-      parameterSets <- list(highResolutionParameterSet)
-      allowedInstrumentTypeSets <- NULL
-      
-      fileSpectra  <- thisLibrary
-      annoFile     <- NULL
-      parameterSet <- highResolutionParameterSet
-      allowedInstrumentTypes <- NULL
-    } else {
+ #   if(isMetFamilyProject){
+ #     libraryIdx   <- 1
+ #     
+ #     libraries     <- thisLibrary
+ #     #annoFiles     <- NULL
+ #     parameterSets <- list(highResolutionParameterSet)
+ #     allowedInstrumentTypeSets <- NULL
+ #     
+ #     fileSpectra  <- thisLibrary
+ #     annoFile     <- NULL
+ #     parameterSet <- highResolutionParameterSet
+ #     allowedInstrumentTypes <- NULL
+ #   } else {
       ##########################################################################
       ## select library
       idx <- which(grepl(pattern = paste(thisLibrary, "$", sep = ""), x = libraries))
       libraries     <- libraries[idx]
-      annoFiles     <- annoFiles[idx]
+      #annoFiles     <- annoFiles[idx]
+      annoFiles     <- annoFile
       parameterSets <- parameterSets[idx]
       allowedInstrumentTypeSets <- allowedInstrumentTypeSets[idx]
       
       libraryIdx   <- 1
       fileSpectra  <- libraries[[1]]
-      annoFile     <- annoFiles[[1]]
+      #annoFile     <- annoFiles[[1]]
       parameterSet <- parameterSets[[1]]
       allowedInstrumentTypes <- allowedInstrumentTypeSets[[1]]
       
@@ -467,7 +420,7 @@ runTest <- function(parameterSetAll){
         parameterSet <- thisParameterSet
         parameterSets[[1]] <- thisParameterSet
       }
-    }
+#    }
   }
   #numberOfLibraries <- length(libraries)
   
@@ -512,14 +465,17 @@ runTest <- function(parameterSetAll){
     ## get library data
     libraryName <- basename(fileSpectra)
     
-    if(FALSE){
-      ## reparse msp
-      processSpectraAndAnnotation(fileSpectra, parameterSet, allowedInstrumentTypes, annoFile, structureFormats, TRUE, progress)
-      next
-    }
+#    if(FALSE){
+#      ## reparse msp
+#      processSpectraAndAnnotation(fileSpectra, parameterSet, allowedInstrumentTypes, annoFile, structureFormats, TRUE, progress)
+#      next
+#    }
     
     cat(paste("Using library", libraryName, "\n"))
     
+#=BREAKPOINT========================================================================================================  
+#=BREAKPOINT========================================================================================================  
+#=BREAKPOINT========================================================================================================  
     if(isMetFamilyProject){
       dataList <- readClusterDataFromProjectFile(file = parameterSetAll$thisLibrary, progress = NA)
       #dataList$annoArrayOfLists
@@ -697,6 +653,9 @@ runTest <- function(parameterSetAll){
       scaffoldsWithEnoughSpectra_subst = returnObj$scaffoldsWithEnoughSpectra_subst
       rm(returnObj)
     }
+    #=BREAKPOINT========================================================================================================  
+    #=BREAKPOINT========================================================================================================  
+    #=BREAKPOINT========================================================================================================  
     
     if(length(duplicatedSpectrumIndecesToRemove_maxPeakCount) != length(duplicatedSpectrumIndecesToRemove_merge)) stop("1:50 bug there")
     
@@ -729,13 +688,13 @@ runTest <- function(parameterSetAll){
     spectraToRetain <- rep(x = TRUE, times = numberOfSpectra)
     spectraToRetain[duplicatedSpectrumIndecesToRemove] <- FALSE
     
-    if(FALSE){
-      matrixMergedSpectra <- matrixOriginal[spectraToRetain, ]
-      rownames(matrixMergedSpectra) <- inchiKeysToInchiKeysBlock1(annoTable$InChIKey[spectraToRetain])
-      file <- gsub(x = fileSpectra, pattern = "\\.msp$", replacement = "_fragmentMatrix.tsv")
-      write.table(x = as.matrix(matrixMergedSpectra), file = file, sep = "\t")
-      #plot()
-    }
+#    if(FALSE){
+#      matrixMergedSpectra <- matrixOriginal[spectraToRetain, ]
+#      rownames(matrixMergedSpectra) <- inchiKeysToInchiKeysBlock1(annoTable$InChIKey[spectraToRetain])
+#      file <- gsub(x = fileSpectra, pattern = "\\.msp$", replacement = "_fragmentMatrix.tsv")
+#      write.table(x = as.matrix(matrixMergedSpectra), file = file, sep = "\t")
+#      #plot()
+#    }
     
     ## load splitted classes
     paramsHash2 <- digest::sha1(algo = "crc32", x = unlist(splitClassesParameterSet))
@@ -804,21 +763,21 @@ runTest <- function(parameterSetAll){
     rmdStatistics <- list()
     
     ## calc smiles stuff
-    if(calculateRMDstatistics){
-      # "obabel -i inchi -o smi AllInchis_new.inchi > AllInchis_new.smi"
-      tmpFileIn  <- "/home/htreutle/Downloads/tmp/inchisTmp.txt"
-      tmpFileOut <- "/home/htreutle/Downloads/tmp/smilesTmp.txt"
-      inchis <- sort(unique(unlist(lapply(X = spectraList, FUN = function(x){x$inchi}))))
-      writeLines(text = inchis, con = tmpFileIn)
-      #cmd <- paste("obabel -i inchi -o smi ", tmpFileIn, " > ", tmpFileOut, sep = "")
-      #output <- system(command = cmd, intern = TRUE)
-      smiles <- readLines(con = tmpFileOut)
-      
-      for(idx in seq_along(spectraList)){
-        #if(spectraList[[idx]]$smiles == "NA")
-          spectraList[[idx]]$smiles <- smiles[[which(inchis == spectraList[[idx]]$inchi)]]
-      }
-    }
+#    if(calculateRMDstatistics){
+#      # "obabel -i inchi -o smi AllInchis_new.inchi > AllInchis_new.smi"
+#      tmpFileIn  <- "/home/htreutle/Downloads/tmp/inchisTmp.txt"
+#      tmpFileOut <- "/home/htreutle/Downloads/tmp/smilesTmp.txt"
+#      inchis <- sort(unique(unlist(lapply(X = spectraList, FUN = function(x){x$inchi}))))
+#      writeLines(text = inchis, con = tmpFileIn)
+#      #cmd <- paste("obabel -i inchi -o smi ", tmpFileIn, " > ", tmpFileOut, sep = "")
+#      #output <- system(command = cmd, intern = TRUE)
+#      smiles <- readLines(con = tmpFileOut)
+#      
+#      for(idx in seq_along(spectraList)){
+#        #if(spectraList[[idx]]$smiles == "NA")
+#          spectraList[[idx]]$smiles <- smiles[[which(inchis == spectraList[[idx]]$inchi)]]
+#      }
+#    }
     
     selectedSpectra_class <- lapply(X = classes, FUN = function(classHere){
       classRegExHere <- gsub(x = classHere,      pattern = "\\\\", replacement = "\\\\\\\\")
@@ -931,7 +890,7 @@ runTest <- function(parameterSetAll){
           if(!dir.exists(resultFolderForMetfamilyProjectsHere))
             dir.create(path = resultFolderForMetfamilyProjectsHere)
           writeMetFamilyProject(spectraListHere = spectraListHere, classHere = tail(x = strsplit(x = class, split = "; ")[[1]], n=1), parameterSet = parameterSet, file = file)
-          print(paste("Wridden MetFamily project", file))
+          print(paste("Written MetFamily project", file))
         }
       }## writeMetFamilyProjects
       
@@ -948,16 +907,16 @@ runTest <- function(parameterSetAll){
         
         #library("mzR")
         #library("xcms")
-        library("matrixStats")
-        library("Matrix")
-        library("tools")
-        library("stringr")
-        library("slam")
+#        library("matrixStats")
+#        library("Matrix")
+#        library("tools")
+#        library("stringr")
+#        library("slam")
         
-        source("/home/htreutle/Code/Java/MetFamily/R/DataProcessing.R")
-        source("/home/htreutle/Code/Java/MetFamily/R/Analysis.R")
-        source("/home/htreutle/Code/Java/MetFamily/R/Plots.R")
-        source("/home/htreutle/Code/Java/MetFamily/R/TreeAlgorithms.R")
+#        source("/home/htreutle/Code/Java/MetFamily/R/DataProcessing.R")
+#        source("/home/htreutle/Code/Java/MetFamily/R/Analysis.R")
+#        source("/home/htreutle/Code/Java/MetFamily/R/Plots.R")
+#        source("/home/htreutle/Code/Java/MetFamily/R/TreeAlgorithms.R")
         
         dataList <- readClusterDataFromProjectFile(file = file, progress = NA)
         distanceMatrix <- calculateDistanceMatrix(dataList = dataList, filter = seq_len(dataList$numberOfPrecursors), distanceMeasure = splitClassesParameterSet$distanceMeasure, progress = NA)
@@ -1640,40 +1599,40 @@ runTest <- function(parameterSetAll){
             }
             
             ## plot scores distribution
-            if(FALSE){
-              predictedScores_neg_here2 <- unlist(predictedScores_neg_j)
-              predictedScores_pos_here2 <- unlist(predictedScores_pos_j)
-              predictedScores_neg_here2_sorted <- sort(predictedScores_neg_here2)
-              predictedScores_pos_here2_sorted <- sort(predictedScores_pos_here2)
-              nNeg <- length(predictedScores_neg_here2)
-              nPos <- length(predictedScores_pos_here2)
-              
-              quantileIdx <- which(mapply(function(x, y) {isTRUE(all.equal(x, y))}, classifier$quantiles, 1 - fdrThreshold))
-              if(length(quantileIdx) == 0)  stop(paste("Quantile for fdrThreshold", fdrThreshold, "not there"))
-              scoreThreshold <- classifier$quantilesValuesNegative[[quantileIdx]]
-              
-              
-              classTmp <- tail(x = strsplit(x = class, split = "; ")[[1]], n=1)
-              file <- paste("/home/htreutle/Events/181018 FoSem/ScoreDistribution_", classTmp, ".png", sep = "")
-              widthInInch     <- 5
-              heigthInInch    <- 5
-              resolutionInDPI <- 600
-              widthInPixel    <- widthInInch  * resolutionInDPI
-              heightInPixel   <- heigthInInch * resolutionInDPI
-              png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
-              
-              main = paste(classTmp, "; AUC=", format(x = auc_roc, digits=4), sep = "")
-              plot(x = c(0,1), y = c(0,1), type="n", xlab="Score", ylab="Cumulative distribution", main=main)
-              par(new=TRUE)
-              plot(x = predictedScores_pos_here2_sorted, y = (1:nPos)/nPos, type="s", col = "blue", xlab="", ylab="", axes=F)
-              par(new=TRUE)
-              plot(x = predictedScores_neg_here2_sorted, y = (1:nNeg)/nNeg, type="s", col = "red", xlab="", ylab="", axes=F)
-              segments(x0 = scoreThreshold, x1 = scoreThreshold, y0 = 0, y1 = 1)
-              text(x = scoreThreshold+0.015, y = 0.5, labels = paste("FPR=", format(x = fdrThreshold, digits=4), "; TPR=", format(x = tpr, digits=4), sep = ""), adj = c(0,0.5))
-              #segments(x0 = 0, x1 = 1, y0 = 0.95, y1 = 0.95)
-              legend(x = 0.55, y = 0.20, legend = c("Foreground", "Background"), col = c("blue", "red"), lty=1)
-              dev.off()
-            }
+#            if(FALSE){
+#              predictedScores_neg_here2 <- unlist(predictedScores_neg_j)
+#              predictedScores_pos_here2 <- unlist(predictedScores_pos_j)
+#              predictedScores_neg_here2_sorted <- sort(predictedScores_neg_here2)
+#              predictedScores_pos_here2_sorted <- sort(predictedScores_pos_here2)
+#              nNeg <- length(predictedScores_neg_here2)
+#              nPos <- length(predictedScores_pos_here2)
+#              
+#              quantileIdx <- which(mapply(function(x, y) {isTRUE(all.equal(x, y))}, classifier$quantiles, 1 - fdrThreshold))
+#              if(length(quantileIdx) == 0)  stop(paste("Quantile for fdrThreshold", fdrThreshold, "not there"))
+#              scoreThreshold <- classifier$quantilesValuesNegative[[quantileIdx]]
+#              
+#              
+#              classTmp <- tail(x = strsplit(x = class, split = "; ")[[1]], n=1)
+#              file <- paste("/home/htreutle/Events/181018 FoSem/ScoreDistribution_", classTmp, ".png", sep = "")
+#              widthInInch     <- 5
+#              heigthInInch    <- 5
+#              resolutionInDPI <- 600
+#              widthInPixel    <- widthInInch  * resolutionInDPI
+#              heightInPixel   <- heigthInInch * resolutionInDPI
+#              png(filename = file, width = widthInPixel, height = heightInPixel, res = resolutionInDPI, bg = "white")
+#              
+#              main = paste(classTmp, "; AUC=", format(x = auc_roc, digits=4), sep = "")
+#              plot(x = c(0,1), y = c(0,1), type="n", xlab="Score", ylab="Cumulative distribution", main=main)
+#              par(new=TRUE)
+#              plot(x = predictedScores_pos_here2_sorted, y = (1:nPos)/nPos, type="s", col = "blue", xlab="", ylab="", axes=F)
+#              par(new=TRUE)
+#              plot(x = predictedScores_neg_here2_sorted, y = (1:nNeg)/nNeg, type="s", col = "red", xlab="", ylab="", axes=F)
+#              segments(x0 = scoreThreshold, x1 = scoreThreshold, y0 = 0, y1 = 1)
+#              text(x = scoreThreshold+0.015, y = 0.5, labels = paste("FPR=", format(x = fdrThreshold, digits=4), "; TPR=", format(x = tpr, digits=4), sep = ""), adj = c(0,0.5))
+#              #segments(x0 = 0, x1 = 1, y0 = 0.95, y1 = 0.95)
+#              legend(x = 0.55, y = 0.20, legend = c("Foreground", "Background"), col = c("blue", "red"), lty=1)
+#              dev.off()
+#            }
           }
           ####################################################
           ## store classifier and results
@@ -1683,74 +1642,74 @@ runTest <- function(parameterSetAll){
       }## builtClassifiers
     }## class
     
-    ## TODO remove redundant pos sets
-    if(FALSE){
-      #classifierFile      <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2019-05-09_08:40:15_180912_MoNA-export-LC-MS-MS_Positive_Mode_processed.msp__Classifier.RData"
-      #fileSplitClassRData <-                               "/vol/Workspace/SEB/Bioinformatics_RG/htreutle_data/Spectral_libraries/MONA/180912/180912_MoNA-export-LC-MS-MS_Positive_Mode_processed_5ece85cd_splitClasses.RData"
-      #load(classifierFile)
-      #load(fileSplitClassRData)
-      classesWithSubSets <- names(classifiers_class)
-      isSubSet <- grepl(x = classesWithSubSets, pattern = "; SubSet_\\d+$")
-      subSetClasses <- classesWithSubSets[isSubSet]
-      
-      selectedSpectra_class2 <- lapply(X = selectedSpectra_class, FUN = function(selectedSpectraHere){return(selectedSpectraHere & spectraToRetain)})
-      redundantSubSets_toClass   <- unlist(sapply(X = classes, FUN = function(class){lapply(X = results__subSets[[class]], FUN = function(results__subSet){
-        is.logical(all.equal(current = selectedSpectra_class2[[class]], target = results__subSet))
-      })}))
-      
-      results__subSets_unlist <- unlist(x = results__subSets, recursive = F, use.names = F)
-      redundantSubSets_toSubSetsTmp <- duplicated(results__subSets_unlist, recursive = F)
-      subSetClassIndeces <- unique(unlist(sapply(X = results__subSets_unlist[redundantSubSets_toSubSetsTmp], FUN = function(results__subSet){
-        #print(sum(results__subSet))
-        #results__subSet <- results__subSets_unlist[redundantSubSets_toSubSetsTmp][[5]]
-        #indeces <- which(unlist(lapply(X = results__subSets_unlist, FUN = function(results__subSets_unlistHere){ is.logical(all.equal(target = results__subSets_unlistHere, current = results__subSet))})))
-        indeces <- which(unlist(lapply(X = results__subSets_unlist, FUN = function(results__subSets_unlistHere){ all(results__subSets_unlistHere == results__subSet)})))
-        subSetClassesHereWithSubSet <- subSetClasses[indeces]
-        subSetClassesHere <- gsub(x = subSetClassesHereWithSubSet, pattern = "; SubSet_\\d+$", replacement = "")
-        #print(length(indeces))
-        subSetClassesHereRedundant <- sapply(X = seq_along(subSetClassesHere), FUN = function(subSetClassIdx){any(grepl(x = subSetClassesHere[-subSetClassIdx], pattern = subSetClassesHere[[subSetClassIdx]]))})
-        subSetClassIndeces <- match(x = subSetClassesHereWithSubSet[subSetClassesHereRedundant], table = subSetClasses)
-        return(subSetClassIndeces)
-      })))
-      redundantSubSets_toSubSets <- logical(length = length(subSetClasses))
-      redundantSubSets_toSubSets[subSetClassIndeces] <- TRUE
-      
-      redundantSubSets <- redundantSubSets_toClass | redundantSubSets_toSubSets
-      print(paste(sum(redundantSubSets_toClass), " / ", length(subSetClasses) , " equal to the class; ", sum(redundantSubSets_toSubSets), " present in more general class(es), ", (length(subSetClasses) - sum(redundantSubSets)), " / ", length(subSetClasses), " SubSets remain for ", length(classes), " classes", sep = ""))
-      
-      redundantClasses <- logical(length = length(classesWithSubSets))
-      redundantClasses[isSubSet] <- redundantSubSets
-      
-      ## remove
-      classifiers_class <- classifiers_class[!redundantClasses]
-      # results__subSets ## leave as is
-      #for(idx in seq_along(classifiers__algo_class)){
-      #  if(length(classifiers__algo_class[[idx]] != length(redundantClasses))) stop("ui")
-      #  #classifiers__algo_class[[idx]]
-      #}
-    }
+#    ## TODO remove redundant pos sets
+#    if(FALSE){
+#      #classifierFile      <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2019-05-09_08:40:15_180912_MoNA-export-LC-MS-MS_Positive_Mode_processed.msp__Classifier.RData"
+#      #fileSplitClassRData <-                               "/vol/Workspace/SEB/Bioinformatics_RG/htreutle_data/Spectral_libraries/MONA/180912/180912_MoNA-export-LC-MS-MS_Positive_Mode_processed_5ece85cd_splitClasses.RData"
+#      #load(classifierFile)
+#      #load(fileSplitClassRData)
+#      classesWithSubSets <- names(classifiers_class)
+#      isSubSet <- grepl(x = classesWithSubSets, pattern = "; SubSet_\\d+$")
+#      subSetClasses <- classesWithSubSets[isSubSet]
+#      
+#      selectedSpectra_class2 <- lapply(X = selectedSpectra_class, FUN = function(selectedSpectraHere){return(selectedSpectraHere & spectraToRetain)})
+#      redundantSubSets_toClass   <- unlist(sapply(X = classes, FUN = function(class){lapply(X = results__subSets[[class]], FUN = function(results__subSet){
+#        is.logical(all.equal(current = selectedSpectra_class2[[class]], target = results__subSet))
+#      })}))
+#      
+#      results__subSets_unlist <- unlist(x = results__subSets, recursive = F, use.names = F)
+#      redundantSubSets_toSubSetsTmp <- duplicated(results__subSets_unlist, recursive = F)
+#      subSetClassIndeces <- unique(unlist(sapply(X = results__subSets_unlist[redundantSubSets_toSubSetsTmp], FUN = function(results__subSet){
+#        #print(sum(results__subSet))
+#        #results__subSet <- results__subSets_unlist[redundantSubSets_toSubSetsTmp][[5]]
+#        #indeces <- which(unlist(lapply(X = results__subSets_unlist, FUN = function(results__subSets_unlistHere){ is.logical(all.equal(target = results__subSets_unlistHere, current = results__subSet))})))
+#        indeces <- which(unlist(lapply(X = results__subSets_unlist, FUN = function(results__subSets_unlistHere){ all(results__subSets_unlistHere == results__subSet)})))
+#        subSetClassesHereWithSubSet <- subSetClasses[indeces]
+#        subSetClassesHere <- gsub(x = subSetClassesHereWithSubSet, pattern = "; SubSet_\\d+$", replacement = "")
+#        #print(length(indeces))
+#        subSetClassesHereRedundant <- sapply(X = seq_along(subSetClassesHere), FUN = function(subSetClassIdx){any(grepl(x = subSetClassesHere[-subSetClassIdx], pattern = subSetClassesHere[[subSetClassIdx]]))})
+#        subSetClassIndeces <- match(x = subSetClassesHereWithSubSet[subSetClassesHereRedundant], table = subSetClasses)
+#        return(subSetClassIndeces)
+#      })))
+#      redundantSubSets_toSubSets <- logical(length = length(subSetClasses))
+#      redundantSubSets_toSubSets[subSetClassIndeces] <- TRUE
+#      
+#      redundantSubSets <- redundantSubSets_toClass | redundantSubSets_toSubSets
+#      print(paste(sum(redundantSubSets_toClass), " / ", length(subSetClasses) , " equal to the class; ", sum(redundantSubSets_toSubSets), " present in more general class(es), ", (length(subSetClasses) - sum(redundantSubSets)), " / ", length(subSetClasses), " SubSets remain for ", length(classes), " classes", sep = ""))
+#      
+#      redundantClasses <- logical(length = length(classesWithSubSets))
+#      redundantClasses[isSubSet] <- redundantSubSets
+#      
+#      ## remove
+#      classifiers_class <- classifiers_class[!redundantClasses]
+#      # results__subSets ## leave as is
+#      #for(idx in seq_along(classifiers__algo_class)){
+#      #  if(length(classifiers__algo_class[[idx]] != length(redundantClasses))) stop("ui")
+#      #  #classifiers__algo_class[[idx]]
+#      #}
+#    }
     
     ## TODO 999
     if(all(splitClasses, !file.exists(fileSplitClassRData))){#, !is.null(thisClass)))
       print(fileSplitClassRData)
       save(file = fileSplitClassRData, results__subSets)
     }
-    if(FALSE){
-      ## all pos: 153/1283 no subSets
-      tmp <- lapply(X = classes, FUN = function(class){
-        inClass <- sum(selectedSpectra_class[[class]] & spectraToRetain)
-        numberOfSubSets <- length(results__subSets[[class]])
-        numberOfSpectraInSubSets <- sum(unlist(results__subSets[[class]]))
-        c(inClass, numberOfSubSets)
-      })
-      xe <- unlist(lapply(X = classes, FUN = function(class){  sum(selectedSpectra_class[[class]] & spectraToRetain)  }))
-      ye <- unlist(lapply(X = classes, FUN = function(class){  length(results__subSets[[class]])    }))
-      ze <- unlist(lapply(X = classes, FUN = function(class){  sum(unlist(lapply(selectedSpectra_class[[class]], FUN = function(vec){vec & spectraToRetain})))  }))
-      plot(xe, ye, log="x")
-      plot(xe, ze, log="xy")
-      lines(x = c(1,max(xe)), y = c(1,max(xe)))
-      plot(seq(from=0, to = max(ye)), sapply(X = seq(from=0, to = max(ye)), FUN = function(c){sum(ye==c)}), log="y", xlab="Number of subsets", ylab="Number of classes", main=gsub(x = gsub(x = libraryName, pattern = "^\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d_\\d\\d:\\d\\d:\\d\\d_", replacement = ""), pattern = "\\.msp$", replacement = ""))
-    }
+#    if(FALSE){
+#      ## all pos: 153/1283 no subSets
+#      tmp <- lapply(X = classes, FUN = function(class){
+#        inClass <- sum(selectedSpectra_class[[class]] & spectraToRetain)
+#        numberOfSubSets <- length(results__subSets[[class]])
+#        numberOfSpectraInSubSets <- sum(unlist(results__subSets[[class]]))
+#        c(inClass, numberOfSubSets)
+#      })
+#      xe <- unlist(lapply(X = classes, FUN = function(class){  sum(selectedSpectra_class[[class]] & spectraToRetain)  }))
+#      ye <- unlist(lapply(X = classes, FUN = function(class){  length(results__subSets[[class]])    }))
+#      ze <- unlist(lapply(X = classes, FUN = function(class){  sum(unlist(lapply(selectedSpectra_class[[class]], FUN = function(vec){vec & spectraToRetain})))  }))
+#      plot(xe, ye, log="x")
+#      plot(xe, ze, log="xy")
+#      lines(x = c(1,max(xe)), y = c(1,max(xe)))
+#      plot(seq(from=0, to = max(ye)), sapply(X = seq(from=0, to = max(ye)), FUN = function(c){sum(ye==c)}), log="y", xlab="Number of subsets", ylab="Number of classes", main=gsub(x = gsub(x = libraryName, pattern = "^\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d_\\d\\d:\\d\\d:\\d\\d_", replacement = ""), pattern = "\\.msp$", replacement = ""))
+#    }
     
     #######################################################################
     #######################################################################
@@ -1845,319 +1804,319 @@ runTest <- function(parameterSetAll){
   ## misc
   
   ## AUC-ROC vs AUC-PR
-  if(FALSE){
-    resultFile <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-10-19_11:29:59_2018-02-13_09_14_10_neg_11328_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
-    resultTable <- read.table(file = resultFile, header = T, sep = "\t", stringsAsFactors = F, comment.char = "")
-    plot(x = resultTable$AUC, resultTable$AUC.PR, xlim=c(0.5,1), ylim=c(0.,1))
-    lines(x = c(0.5, 1), y = c(0., 1))
-  }
+#  if(FALSE){
+#    resultFile <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-10-19_11:29:59_2018-02-13_09_14_10_neg_11328_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
+#    resultTable <- read.table(file = resultFile, header = T, sep = "\t", stringsAsFactors = F, comment.char = "")
+#    plot(x = resultTable$AUC, resultTable$AUC.PR, xlim=c(0.5,1), ylim=c(0.,1))
+#    lines(x = c(0.5, 1), y = c(0., 1))
+#  }
   ## AUC vs AUC plot
-  if(FALSE){
-    ## considerAlternativeSubstanceClasses ?
-    resultDf1 <- read.table(file = "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-                            header = T, sep = "\t", comment.char = "", stringsAsFactors = F, check.names = F)
-    resultDf2 <- read.table(file = "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-                            header = T, sep = "\t", comment.char = "", stringsAsFactors = F, check.names = F)
-    
-    resultDf2 <- resultDf2[resultDf2$`Substance class` %in% resultDf$`Substance class`, ]
-    
-    plot(x = resultDf$AUC, y = resultDf3$AUC, xlim=c(0.5,1), ylim=c(0.5,1), xlab="AUC Without alternative SC", ylab="AUC Without alternative SC")
-    segments(0.5,0.5,1,1)
-    
-    plot(sort(resultDf$AUC), col="red", ylim=c(0.5,1))
-    points(sort(resultDf1$AUC), col="blue")
-    points(sort(resultDf2$AUC), col="green")
-    legend(x = 1, y = 1, legend = c("1 vs 2", "1", "2"), col = c("red", "blue", "green"), lty = c(1,1,1))
-  }
+#  if(FALSE){
+#    ## considerAlternativeSubstanceClasses ?
+#    resultDf1 <- read.table(file = "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#                            header = T, sep = "\t", comment.char = "", stringsAsFactors = F, check.names = F)
+#    resultDf2 <- read.table(file = "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#                            header = T, sep = "\t", comment.char = "", stringsAsFactors = F, check.names = F)
+#    
+#    resultDf2 <- resultDf2[resultDf2$`Substance class` %in% resultDf$`Substance class`, ]
+#    
+#    plot(x = resultDf$AUC, y = resultDf3$AUC, xlim=c(0.5,1), ylim=c(0.5,1), xlab="AUC Without alternative SC", ylab="AUC Without alternative SC")
+#    segments(0.5,0.5,1,1)
+#    
+#    plot(sort(resultDf$AUC), col="red", ylim=c(0.5,1))
+#    points(sort(resultDf1$AUC), col="blue")
+#    points(sort(resultDf2$AUC), col="green")
+#    legend(x = 1, y = 1, legend = c("1 vs 2", "1", "2"), col = c("red", "blue", "green"), lty = c(1,1,1))
+#  }
   ## method vs method plot
-  if(FALSE){
-    ## fetch mean AUC per method
-    for(methodName in methodNames){
-      for(smoothIntensities in c(T,F)){
-        these <- resultDf$Method==methodName & resultDf$SmoothIntensities==as.character(smoothIntensities)
-        print(paste(
-          sum(as.numeric(resultDf$AUC[these]), na.rm = TRUE) / sum(these, na.rm = TRUE), 
-          sum(as.numeric(resultDf$`time (s)`[these]), na.rm = TRUE) / sum(these, na.rm = TRUE), 
-          methodName, smoothIntensities
-        ))
-      }
-    }
-  }
+#  if(FALSE){
+#    ## fetch mean AUC per method
+#    for(methodName in methodNames){
+#      for(smoothIntensities in c(T,F)){
+#        these <- resultDf$Method==methodName & resultDf$SmoothIntensities==as.character(smoothIntensities)
+#        print(paste(
+#          sum(as.numeric(resultDf$AUC[these]), na.rm = TRUE) / sum(these, na.rm = TRUE), 
+#          sum(as.numeric(resultDf$`time (s)`[these]), na.rm = TRUE) / sum(these, na.rm = TRUE), 
+#          methodName, smoothIntensities
+#        ))
+#      }
+#    }
+#  }
   ## combine results
-  if(FALSE){
+#  if(FALSE){
     ## combine library results
     #libraryNames <- c("GC_EI_pos", "LC_ESI_neg", "LC_MSMS_neg", "LC_MSMS_pos")
-    libraryNames <- c(
-      "170713_Weizmass_neg",
-      "170713_Weizmass_pos",
-      "Wiley_and_Wiley_10",
-      "mainlibNIST2014_GC",
-      "MoNA_GC_EI_Pos",
-      "MoNA_LC_ESI_Neg",
-      "MoNA_LC_MSMS_Neg",
-      "MoNA_LC_MSMS_Pos",
-      "UNPD_ISDB_R_LC_Neg"
-    )
-    files <- c(
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_neg.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_neg.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_pos.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_pos.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=GCMS_DB-Wiley_and_Wiley_10.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=GCMS_DB-Wiley_and_Wiley_10.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_ESI_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_ESI_-_Negative.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=UNPD_ISDB_R.mgf_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=UNPD_ISDB_R.mgf_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv"
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_GC_EI_pos_SVM_one.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_ESI_Neg_SVM_one.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_neg_SVM_one.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_pos_SVM_one.tsv"
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_GC_EI_Pos_Substituents_Detailed.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_ESI_Neg_Substituents_Detailed.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_Neg_Substituents_Detailed.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_Pos_Substituents_Detailed.tsv"
-    )
-    
-    if(TRUE){
-      files <- files[seq(from=1, to=length(files), by=2)]
-    } else {
-      files <- files[seq(from=2, to=length(files), by=2)]
-    }
-    
-    librarySelection <- c(T,T,F,F,F,F,T,T,F)
-    files        <- files       [librarySelection]
-    libraryNames <- libraryNames[librarySelection]
-    
-    
-    libraryNames <- c(
-      "MoNA_GC_EI_Pos",
-      "MoNA_LC_MSMS_Pos",
-      "MoNA_LC_MSMS_Neg"
-    )
-    
-    files <- c(
-      ## GC-EI
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-08_08:55:24_Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=512_mergedSpectra.tsv",
-      ## LC-pos
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-08_08:51:16_Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=351_mergedSpectra.tsv",
-      ## LC-neg
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-08_08:45:32_Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=286_mergedSpectra.tsv"
-    )
-    
-    
-    libraryNames <- c(
-      #"MoNA",
-      "Merge_neg",
-      "NIST2017_neg",
-      
-      #"Respect_pos",
-      "Respect_neg",
-      #"GNPS_pos",
-      "GNPS_neg",
-      #"IPB_pos",
-      "IPB_neg",
-      #"WeizMass_pos",
-      "WeizMass_neg",
-      #"MoNA_pos",
-      "MoNA_neg"
-    )
-    files <- c(
-      ## GC-EI
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:30:43_Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=502_mergedSpectra.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_22:02:17_Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=1766_mergedSpectra.tsv",
-      ## LC-pos
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:26:28_Results_library=170713_Shahaf_lib_spectra_pos.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=282_mergedSpectra.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:23:24_Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=374_mergedSpectra.tsv",
-      ## LC-neg
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:18:15_Results_library=170713_Shahaf_lib_spectra_neg.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=269_mergedSpectra.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:16:54_Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=310_mergedSpectra.tsv"
-      
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-15_08:34:16_MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-14_15_52_58_2018-02-09_15_00_25_MSMS_neg_106843_MoNA_WeizMASS_NIST2017_IPB_GNPS_Respect.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-15_15_22_21_2018-02-13_09_14_10_neg_91215_nist_msms.MSP_Results.tsv",
-      
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:23:12_2018-02-13_09_14_10_pos_2768_MSMS-Respect-Curated-Pos.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09_21_21_2018-02-13_09_14_10_neg_1628_MSMS-Respect-Curated-Neg.msp_Results.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:20:10_2018-02-13_09_14_10_pos_3771_MSMS-GNPS-Curated-Pos.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09_02_41_2018-02-13_09_14_10_neg_153_MSMS-GNPS-Curated-Neg.msp_Results.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:02:03_2018-02-13_09_14_10_pos_111_Leibniz positive mode_20170801.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:01:49_2018-02-13_09_14_10_neg_292_Leibniz negative mode_20170801.msp_Results.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_08:39:25_2018-02-13_09_14_10_pos_2214_lib_spectra_pos_new.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_08:35:32_2018-02-13_09_14_10_neg_2227_lib_spectra_neg_new.msp_Results.tsv",
-      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_08:32:47_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_07:34:28_2018-02-13_09_14_10_neg_11328_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
-    )
-    
-    libraryNames <- c(
-      "Merge_pos",
-      "WeizMass_pos",
-      "MoNA_pos",
-      "Merge_neg",
-      "WeizMass_neg",
-      "MoNA_neg"
-    )
-    files <- c(
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_15:58:45_2018-02-09_15_00_25_MSMS_pos_418622_MoNA_WeizMASS_NIST2017_IPB_GNPS_Respect.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_14:01:16_2018-02-13_09_14_10_pos_2214_lib_spectra_pos_new.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_14:00:05_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_13:59:06_2018-02-09_15_00_25_MSMS_neg_106843_MoNA_WeizMASS_NIST2017_IPB_GNPS_Respect.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_13:42:15_2018-02-13_09_14_10_neg_2227_lib_spectra_neg_new.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_13:41:33_2018-02-13_09_14_10_neg_11328_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
-    )
-    
-    libraryNames <- c(
-      "merge_ColSums; sI=FALSE",
-      "merge_ColSums; sI=TRUE",
-      "merge_ColSumsPos; sI=FALSE",
-      "merge_ColSumsPos; sI=TRUE",
-      "merge_ColSumsPosOnly; sI=FALSE",
-      "merge_ColSumsPosOnly; sI=TRUE",
-      "merge_ColSumsRatio; sI=FALSE",
-      "merge_ColSumsRatio; sI=TRUE",
-      "merge_ColSumsLog; sI=FALSE",
-      "merge_ColSumsLog; sI=TRUE",
-      "max_ColSums; sI=FALSE",
-      "max_ColSums; sI=TRUE",
-      "max_ColSumsPos; sI=FALSE",
-      "max_ColSumsPos; sI=TRUE",
-      "max_ColSumsPosOnly; sI=FALSE",
-      "max_ColSumsPosOnly; sI=TRUE",
-      "max_ColSumsRatio; sI=FALSE",
-      "max_ColSumsRatio; sI=TRUE",
-      "max_ColSumsLog; sI=FALSE",
-      "max_ColSumsLog; sI=TRUE"
-    )
-    files <- c(
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:48:33_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:49:25_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:50:15_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:51:06_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:51:47_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:52:29_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:53:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:54:12_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:55:04_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:55:57_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:56:49_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:57:39_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:58:30_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:59:20_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:00:01_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:00:44_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:01:36_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:02:28_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:03:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:04:15_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
-    )
-    files <- c(
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:10:36_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:16:59_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:23:43_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:30:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:35:46_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:41:10_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:47:54_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:54:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:00:56_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:07:18_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:13:17_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:19:15_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:25:16_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:31:19_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:36:20_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:41:23_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:47:50_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:54:29_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_10:00:51_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
-      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_10:07:26_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
-    )
-    
-    if(length(files) != length(libraryNames)) stop("lengths not equal")
-    
-    takeSubstanceClasses <- TRUE
-    
-    fileOut <- paste("/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/tmp/Results_combined_", ifelse(takeSubstanceClasses, "SC", "Subst"), "_", length(files), "Libraries.tsv", sep = "")
-    #fileOut <- paste("/home/htreutle/Events/180208 SEB seminar/pics/Results_combined_", ifelse(takeSubstanceClasses, "SC", "Subst"), "_", length(files), "Libraries.tsv", sep = "")
-    #fileOut <- paste("/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_combined_", ifelse(takeSubstanceClasses, "SC", "Subst"), "_", length(files), "Libraries.tsv", sep = "")
-    #fileOut <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_combined_Subst_4Libraries.tsv"
-    
-    tables <- list()
-    for(idx in seq_along(files))
-      tables[[idx]] <- read.table(file = files[[idx]], header = T, sep = "\t", comment.char = "", check.names = F, stringsAsFactors = F, quote = "\"")
-    scs <- NULL
-    for(idx in seq_along(files))
-      scs <- c(scs, tables[[idx]][, "Substance class"])
-    scs <- unique(scs)
-    scs <- sort(scs)
-    
-    resultDfAll <- data.frame(
-      "Substance class" = scs, 
-      stringsAsFactors = F, check.names = F
-    )
-    ## empty columns for spectra count and AUC
-    for(idx in seq_along(files))
-      resultDfAll = cbind(
-        resultDfAll, 
-        rep(x = "", times = nrow(resultDfAll)), 
-        rep(x = "", times = nrow(resultDfAll)), 
-        stringsAsFactors = F
-    )
-    
-    colnames(resultDfAll) <- c(
-      ifelse(test = takeSubstanceClasses, yes = "Substance class", no = "Substituent"), 
-      paste("Spectra", libraryNames), 
-      paste("AUC", libraryNames)
-    )
-    
-    for(sc in scs){
-      for(idx in seq_along(files)){
-        from = which(tables[[idx]][, "Substance class"] == sc)
-        to   = which(resultDfAll  [, "Substance class"] == sc)
-        if(length(from) == 0){
-          num <- "-"
-          auc <- "-"
-        } else {
-          num <- paste(tables[[idx]][,"Number of positive spectra"][from], tables[[idx]][, "Number of spectra"][from], sep = " / ")
-          auc <- tables[[idx]][, "AUC"][from]
-        }
-        
-        resultDfAll[to, 1 + idx] <- num
-        resultDfAll[to, 1 + length(tables) + idx] <- auc
-      }
-    }
-    
-    write.table(file = fileOut, x = resultDfAll, row.names = FALSE, sep = "\t")
-    print(fileOut)
-    
-    if(FALSE)
-      for(idx in seq_along(files)){
-        fileOut2 <- gsub(pattern = ".tsv", replacement = paste("_", libraryNames[[idx]], "hist.png", sep = ""), x = paste(fileOut))
-        
-        widthToHeightRatio = 16/10;
-        size = 6
-        resolution <- 300
-        width <- size * widthToHeightRatio
-        height <- size
-        
-        fileName <- gsub(pattern = ".tsv$", replacement = "_hist_2.png", x = files[[idx]])
-        png(filename = fileName, res = resolution, width = width * resolution, height = height * resolution)
-        
-        hist(as.numeric(resultDfAll[, paste("AUC", libraryNames[[idx]])]), main = paste("SC", libraryNames[[idx]]), xlab = "AUC", breaks = seq(from=0, to=1, by=0.05))
-        
-        dev.off()
-      }
-    #for(idx in seq_along(files))
-    #  write.table(file = files[[idx]], x = tables[[idx]], row.names = FALSE, sep = "\t")
-  }
+#    libraryNames <- c(
+#      "170713_Weizmass_neg",
+#      "170713_Weizmass_pos",
+#      "Wiley_and_Wiley_10",
+#      "mainlibNIST2014_GC",
+#      "MoNA_GC_EI_Pos",
+#      "MoNA_LC_ESI_Neg",
+#      "MoNA_LC_MSMS_Neg",
+#      "MoNA_LC_MSMS_Pos",
+#      "UNPD_ISDB_R_LC_Neg"
+#    )
+#    files <- c(
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_neg.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_neg.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_pos.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=170713_Shahaf_lib_spectra_pos.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=GCMS_DB-Wiley_and_Wiley_10.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=GCMS_DB-Wiley_and_Wiley_10.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_ESI_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_ESI_-_Negative.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=UNPD_ISDB_R.mgf_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_library=UNPD_ISDB_R.mgf_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE.tsv"
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_GC_EI_pos_SVM_one.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_ESI_Neg_SVM_one.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_neg_SVM_one.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_pos_SVM_one.tsv"
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_GC_EI_Pos_Substituents_Detailed.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_ESI_Neg_Substituents_Detailed.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_Neg_Substituents_Detailed.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_LC_MSMS_Pos_Substituents_Detailed.tsv"
+#    )
+#    
+#    if(TRUE){
+#      files <- files[seq(from=1, to=length(files), by=2)]
+#    } else {
+#      files <- files[seq(from=2, to=length(files), by=2)]
+#    }
+#    
+#    librarySelection <- c(T,T,F,F,F,F,T,T,F)
+#    files        <- files       [librarySelection]
+#    libraryNames <- libraryNames[librarySelection]
+#    
+#    
+#    libraryNames <- c(
+#      "MoNA_GC_EI_Pos",
+#      "MoNA_LC_MSMS_Pos",
+#      "MoNA_LC_MSMS_Neg"
+#    )
+#    
+#    files <- c(
+#      ## GC-EI
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-08_08:55:24_Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=512_mergedSpectra.tsv",
+#      ## LC-pos
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-08_08:51:16_Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=351_mergedSpectra.tsv",
+#      ## LC-neg
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-08_08:45:32_Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_Substituent_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=286_mergedSpectra.tsv"
+#    )
+#    
+#    
+#    libraryNames <- c(
+#      #"MoNA",
+#      "Merge_neg",
+#      "NIST2017_neg",
+#      
+#      #"Respect_pos",
+#      "Respect_neg",
+#      #"GNPS_pos",
+#      "GNPS_neg",
+#      #"IPB_pos",
+#      "IPB_neg",
+#      #"WeizMass_pos",
+#      "WeizMass_neg",
+#      #"MoNA_pos",
+#      "MoNA_neg"
+#    )
+#    files <- c(
+#      ## GC-EI
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:30:43_Results_library=MoNA-export-GC-MS_-_EI_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=502_mergedSpectra.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_22:02:17_Results_library=mainlibNIST2014_withINCHI.MSP_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=1766_mergedSpectra.tsv",
+#      ## LC-pos
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:26:28_Results_library=170713_Shahaf_lib_spectra_pos.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=282_mergedSpectra.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:23:24_Results_library=MoNA-export-LC-MS_-_MSMS_-_Positive.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=374_mergedSpectra.tsv",
+#      ## LC-neg
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:18:15_Results_library=170713_Shahaf_lib_spectra_neg.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=269_mergedSpectra.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-06_15:16:54_Results_library=MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Class=ChemOnt_SubstanceClass_AltSC=TRUE_method=ColSums_smoothIntensities=FALSE_NumClasses=310_mergedSpectra.tsv"
+#      
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-15_08:34:16_MoNA-export-LC-MS_-_MSMS_-_Negative.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-14_15_52_58_2018-02-09_15_00_25_MSMS_neg_106843_MoNA_WeizMASS_NIST2017_IPB_GNPS_Respect.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-15_15_22_21_2018-02-13_09_14_10_neg_91215_nist_msms.MSP_Results.tsv",
+#      
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:23:12_2018-02-13_09_14_10_pos_2768_MSMS-Respect-Curated-Pos.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09_21_21_2018-02-13_09_14_10_neg_1628_MSMS-Respect-Curated-Neg.msp_Results.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:20:10_2018-02-13_09_14_10_pos_3771_MSMS-GNPS-Curated-Pos.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09_02_41_2018-02-13_09_14_10_neg_153_MSMS-GNPS-Curated-Neg.msp_Results.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:02:03_2018-02-13_09_14_10_pos_111_Leibniz positive mode_20170801.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_09:01:49_2018-02-13_09_14_10_neg_292_Leibniz negative mode_20170801.msp_Results.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_08:39:25_2018-02-13_09_14_10_pos_2214_lib_spectra_pos_new.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_08:35:32_2018-02-13_09_14_10_neg_2227_lib_spectra_neg_new.msp_Results.tsv",
+#      #"/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_08:32:47_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-02-20_07:34:28_2018-02-13_09_14_10_neg_11328_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
+#    )
+#    
+#    libraryNames <- c(
+#      "Merge_pos",
+#      "WeizMass_pos",
+#      "MoNA_pos",
+#      "Merge_neg",
+#      "WeizMass_neg",
+#      "MoNA_neg"
+#    )
+#    files <- c(
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_15:58:45_2018-02-09_15_00_25_MSMS_pos_418622_MoNA_WeizMASS_NIST2017_IPB_GNPS_Respect.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_14:01:16_2018-02-13_09_14_10_pos_2214_lib_spectra_pos_new.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_14:00:05_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_13:59:06_2018-02-09_15_00_25_MSMS_neg_106843_MoNA_WeizMASS_NIST2017_IPB_GNPS_Respect.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_13:42:15_2018-02-13_09_14_10_neg_2227_lib_spectra_neg_new.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/2018-03-12_13:41:33_2018-02-13_09_14_10_neg_11328_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
+#    )
+#    
+#    libraryNames <- c(
+#      "merge_ColSums; sI=FALSE",
+#      "merge_ColSums; sI=TRUE",
+#      "merge_ColSumsPos; sI=FALSE",
+#      "merge_ColSumsPos; sI=TRUE",
+#      "merge_ColSumsPosOnly; sI=FALSE",
+#      "merge_ColSumsPosOnly; sI=TRUE",
+#      "merge_ColSumsRatio; sI=FALSE",
+#      "merge_ColSumsRatio; sI=TRUE",
+#      "merge_ColSumsLog; sI=FALSE",
+#      "merge_ColSumsLog; sI=TRUE",
+#      "max_ColSums; sI=FALSE",
+#      "max_ColSums; sI=TRUE",
+#      "max_ColSumsPos; sI=FALSE",
+#      "max_ColSumsPos; sI=TRUE",
+#      "max_ColSumsPosOnly; sI=FALSE",
+#      "max_ColSumsPosOnly; sI=TRUE",
+#      "max_ColSumsRatio; sI=FALSE",
+#      "max_ColSumsRatio; sI=TRUE",
+#      "max_ColSumsLog; sI=FALSE",
+#      "max_ColSumsLog; sI=TRUE"
+#    )
+#    files <- c(
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:48:33_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:49:25_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:50:15_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:51:06_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:51:47_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:52:29_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:53:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:54:12_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:55:04_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:55:57_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:56:49_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:57:39_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:58:30_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_13:59:20_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:00:01_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:00:44_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:01:36_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:02:28_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:03:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_scaffolds/2018-06-08_14:04:15_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
+#    )
+#    files <- c(
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:10:36_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:16:59_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:23:43_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:30:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:35:46_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:41:10_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:47:54_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_08:54:21_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:00:56_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:07:18_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:13:17_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:19:15_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:25:16_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:31:19_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:36:20_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:41:23_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:47:50_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_09:54:29_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_10:00:51_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv",
+#      "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/colSumsTest_ChemOntAll/2018-06-13_10:07:26_2018-02-13_09_14_10_pos_21908_MoNA-export-LC-MS-MS_Spectra.msp_Results.tsv"
+#    )
+#    
+#    if(length(files) != length(libraryNames)) stop("lengths not equal")
+#    
+#    takeSubstanceClasses <- TRUE
+#    
+#    fileOut <- paste("/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/tmp/Results_combined_", ifelse(takeSubstanceClasses, "SC", "Subst"), "_", length(files), "Libraries.tsv", sep = "")
+#    #fileOut <- paste("/home/htreutle/Events/180208 SEB seminar/pics/Results_combined_", ifelse(takeSubstanceClasses, "SC", "Subst"), "_", length(files), "Libraries.tsv", sep = "")
+#    #fileOut <- paste("/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_combined_", ifelse(takeSubstanceClasses, "SC", "Subst"), "_", length(files), "Libraries.tsv", sep = "")
+#    #fileOut <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/Results_combined_Subst_4Libraries.tsv"
+#    
+#    tables <- list()
+#    for(idx in seq_along(files))
+#      tables[[idx]] <- read.table(file = files[[idx]], header = T, sep = "\t", comment.char = "", check.names = F, stringsAsFactors = F, quote = "\"")
+#    scs <- NULL
+#    for(idx in seq_along(files))
+#      scs <- c(scs, tables[[idx]][, "Substance class"])
+#    scs <- unique(scs)
+#    scs <- sort(scs)
+#    
+#    resultDfAll <- data.frame(
+#      "Substance class" = scs, 
+#      stringsAsFactors = F, check.names = F
+#    )
+#    ## empty columns for spectra count and AUC
+#    for(idx in seq_along(files))
+#      resultDfAll = cbind(
+#        resultDfAll, 
+#        rep(x = "", times = nrow(resultDfAll)), 
+#        rep(x = "", times = nrow(resultDfAll)), 
+#        stringsAsFactors = F
+#    )
+#    
+#    colnames(resultDfAll) <- c(
+#      ifelse(test = takeSubstanceClasses, yes = "Substance class", no = "Substituent"), 
+#      paste("Spectra", libraryNames), 
+#      paste("AUC", libraryNames)
+#    )
+#    
+#    for(sc in scs){
+#      for(idx in seq_along(files)){
+#        from = which(tables[[idx]][, "Substance class"] == sc)
+#        to   = which(resultDfAll  [, "Substance class"] == sc)
+#        if(length(from) == 0){
+#          num <- "-"
+#          auc <- "-"
+#        } else {
+#          num <- paste(tables[[idx]][,"Number of positive spectra"][from], tables[[idx]][, "Number of spectra"][from], sep = " / ")
+#          auc <- tables[[idx]][, "AUC"][from]
+#        }
+#        
+#        resultDfAll[to, 1 + idx] <- num
+#        resultDfAll[to, 1 + length(tables) + idx] <- auc
+#      }
+#    }
+#    
+#    write.table(file = fileOut, x = resultDfAll, row.names = FALSE, sep = "\t")
+#    print(fileOut)
+#    
+#    if(FALSE)
+#      for(idx in seq_along(files)){
+#        fileOut2 <- gsub(pattern = ".tsv", replacement = paste("_", libraryNames[[idx]], "hist.png", sep = ""), x = paste(fileOut))
+#        
+#        widthToHeightRatio = 16/10;
+#        size = 6
+#        resolution <- 300
+#        width <- size * widthToHeightRatio
+#        height <- size
+#        
+#        fileName <- gsub(pattern = ".tsv$", replacement = "_hist_2.png", x = files[[idx]])
+#        png(filename = fileName, res = resolution, width = width * resolution, height = height * resolution)
+#        
+#        hist(as.numeric(resultDfAll[, paste("AUC", libraryNames[[idx]])]), main = paste("SC", libraryNames[[idx]]), xlab = "AUC", breaks = seq(from=0, to=1, by=0.05))
+#        
+#        dev.off()
+#      }
+#    #for(idx in seq_along(files))
+#    #  write.table(file = files[[idx]], x = tables[[idx]], row.names = FALSE, sep = "\t")
+#  }
 }
 
 ##############################################################################################################################################
@@ -2310,22 +2269,22 @@ getApplicableCaretModels <- function(verbose.output = FALSE){
   
   return(applicableModelNames)
 }
-classifierOverview <- function(){
-  folder <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/"
-  resultObj <- getAvailableClassifiers(folder)
-  availableClassifiersDf <- resultObj$availableClassifiersDf
-  availableClassifiersDfProperties <- resultObj$availableClassifiersDfProperties
-  
-  rownames(availableClassifiersDf) <- basename(rownames(availableClassifiersDf))
-  
-  timeStamp <- gsub(pattern = "[ ]", x = Sys.time(), replacement = "_")
-  folder <- "/vol/Workspace/SEB/Bioinformatics_RG/htreutle_data/Spectral_libraries/"
-  file <- paste(folder, timeStamp, "_LibraryOverview.tsv", sep = "")
-  
-  write.table(x = availableClassifiersDf, file = file, sep = "\t")
-  
-  availableClassifiersDf
-}
+#classifierOverview <- function(){
+#  folder <- "/home/htreutle/Data/SubstanceClasses/Classifier_ROC_Analysis/"
+#  resultObj <- getAvailableClassifiers(folder)
+#  availableClassifiersDf <- resultObj$availableClassifiersDf
+#  availableClassifiersDfProperties <- resultObj$availableClassifiersDfProperties
+#  
+#  rownames(availableClassifiersDf) <- basename(rownames(availableClassifiersDf))
+#  
+#  timeStamp <- gsub(pattern = "[ ]", x = Sys.time(), replacement = "_")
+#  folder <- "/vol/Workspace/SEB/Bioinformatics_RG/htreutle_data/Spectral_libraries/"
+#  file <- paste(folder, timeStamp, "_LibraryOverview.tsv", sep = "")
+#  
+#  write.table(x = availableClassifiersDf, file = file, sep = "\t")
+#  
+#  availableClassifiersDf
+#}
 processLibrary <- function(
   fileSpectra, parameterSet, allowedInstrumentTypes, annoFile, structureFormats, progress, 
   minimumNumberOfPosSpectraPerClass, minimumNumberOfNegSpectraPerClass, mergeDuplicatedSpectra, #considerAlternativeSubstanceClasses, 
@@ -2343,17 +2302,17 @@ processLibrary <- function(
   inchis          = returnObj$inchis
   annoTable       = returnObj$annoTable
   
-  if(FALSE){
-    subSet <- 5000
-    if(!is.na(subSet)){
-      spectraList     = spectraList[1:subSet]
-      numberOfSpectra = subSet
-      precursorMz     = precursorMz[1:subSet]
-      precursorRt     = precursorRt[1:subSet]
-      inchis          = inchis[1:subSet]
-      annoTable       = annoTable[1:subSet, ]
-    }
-  }
+#  if(FALSE){
+#    subSet <- 5000
+#    if(!is.na(subSet)){
+#      spectraList     = spectraList[1:subSet]
+#      numberOfSpectra = subSet
+#      precursorMz     = precursorMz[1:subSet]
+#      precursorRt     = precursorRt[1:subSet]
+#      inchis          = inchis[1:subSet]
+#      annoTable       = annoTable[1:subSet, ]
+#    }
+#  }
   
   #spectrumId <- paste(precursorMz, precursorRt)
   #spectrumId <- seq_len(numberOfSpectra)
@@ -2463,15 +2422,15 @@ processLibrary <- function(
   #}
   rm(fragmentCounts)
   
-  if(FALSE){
-    cpdNames <- unlist(lapply(X = spectraList, FUN = function(x){x$name}))
-    cpdNames[grepl(pattern = "rhamnoside", x = cpdNames)]
-    inchiKeyBlock1Here <- unique(inchiKeysBlock1[grepl(pattern = "Cyanidin-3-O-rhamnoside cation", x = cpdNames)])
-    # USWXMMRFOWNEOR
-    colSumsHere <- colSums(fragmentMatrix[inchiKeysBlock1 == inchiKeyBlock1Here, ] > 0)
-    paste(colSumsHere[colSumsHere > 0], fragmentMasses[colSumsHere > 0])
-    idx <- which(duplicatedInchiKeysBlock1 == inchiKeyBlock1Here)
-  }
+#  if(FALSE){
+#    cpdNames <- unlist(lapply(X = spectraList, FUN = function(x){x$name}))
+#    cpdNames[grepl(pattern = "rhamnoside", x = cpdNames)]
+#    inchiKeyBlock1Here <- unique(inchiKeysBlock1[grepl(pattern = "Cyanidin-3-O-rhamnoside cation", x = cpdNames)])
+#    # USWXMMRFOWNEOR
+#    colSumsHere <- colSums(fragmentMatrix[inchiKeysBlock1 == inchiKeyBlock1Here, ] > 0)
+#    paste(colSumsHere[colSumsHere > 0], fragmentMasses[colSumsHere > 0])
+#    idx <- which(duplicatedInchiKeysBlock1 == inchiKeyBlock1Here)
+#  }
   
   duplicatedSpectrumIndecesToRemove_merge <- integer()
   if(mergeDuplicatedSpectra){
@@ -2535,46 +2494,46 @@ processLibrary <- function(
       #}
       
       ## update
-      if(TRUE){
+#      if(TRUE){
         representativeIdx <- indeces[[1]]
         indecesToRemove   <- indeces[-1]
         spectraList  [[representativeIdx]]  <- mergedEntry
         fragmentMatrix[representativeIdx, ] <- mergedSpectrum
-      } else {
-        indecesToRemove   <- vector(mode = "integer", length = 0)
-        for(index in indeces){
-          spectraList   [[index]] <- mergedEntry
-          fragmentMatrix[index, ] <- mergedSpectrum
-        }
-      }
+#      } else {
+#        indecesToRemove   <- vector(mode = "integer", length = 0)
+#        for(index in indeces){
+#          spectraList   [[index]] <- mergedEntry
+#          fragmentMatrix[index, ] <- mergedSpectrum
+#        }
+#      }
       
       precursorIndecesToRemove <- c(precursorIndecesToRemove, indecesToRemove)
     }
     
-    if(FALSE){
-    fragmentMatrix <- fragmentMatrix[-precursorIndecesToRemove, ]
-    spectraList <- spectraList[-precursorIndecesToRemove]
-    
-    numberOfSpectra = numberOfSpectra - length(precursorIndecesToRemove)
-    #precursorMz     = precursorMz[-precursorIndecesToRemove]
-    #precursorRt     = precursorRt[-precursorIndecesToRemove]
-    precursorMz     = unlist(lapply(X = spectraList, FUN = function(x){x$mz}))
-    precursorRt     = unlist(lapply(X = spectraList, FUN = function(x){x$rt}))
-    inchis          = inchis[-precursorIndecesToRemove]
-    annoTable       = annoTable[-precursorIndecesToRemove, ]
-    
-    fragmentMatrix@Dimnames[[1]] <- paste(precursorMz, precursorRt, sep = " / ") #TODO: mz / rt / x for uniqueness...?
-    #spectrumId <- paste(precursorMz, precursorRt)
-    #spectrumId <- seq_len(numberOfSpectra)
-    
-    #######################################################################
-    ## duplicated
-    duplicatedStructures <- duplicatedStructures[-precursorIndecesToRemove]
-    uniqueNumberOfSpectra <- numberOfSpectra - sum(duplicatedStructures)
-    duplicatedInchiKeysBlock1 <- unique(inchiKeysBlock1[duplicatedStructures])
-    
-    duplicatedSpectrumIndecesToRemove_merge <- integer()
-    }
+#    if(FALSE){
+#    fragmentMatrix <- fragmentMatrix[-precursorIndecesToRemove, ]
+#    spectraList <- spectraList[-precursorIndecesToRemove]
+#    
+#    numberOfSpectra = numberOfSpectra - length(precursorIndecesToRemove)
+#    #precursorMz     = precursorMz[-precursorIndecesToRemove]
+#    #precursorRt     = precursorRt[-precursorIndecesToRemove]
+#    precursorMz     = unlist(lapply(X = spectraList, FUN = function(x){x$mz}))
+#    precursorRt     = unlist(lapply(X = spectraList, FUN = function(x){x$rt}))
+#    inchis          = inchis[-precursorIndecesToRemove]
+#    annoTable       = annoTable[-precursorIndecesToRemove, ]
+#    
+#    fragmentMatrix@Dimnames[[1]] <- paste(precursorMz, precursorRt, sep = " / ") #TODO: mz / rt / x for uniqueness...?
+#    #spectrumId <- paste(precursorMz, precursorRt)
+#    #spectrumId <- seq_len(numberOfSpectra)
+#    
+#    #######################################################################
+#    ## duplicated
+#    duplicatedStructures <- duplicatedStructures[-precursorIndecesToRemove]
+#    uniqueNumberOfSpectra <- numberOfSpectra - sum(duplicatedStructures)
+#    duplicatedInchiKeysBlock1 <- unique(inchiKeysBlock1[duplicatedStructures])
+#    
+#    duplicatedSpectrumIndecesToRemove_merge <- integer()
+#    }
     duplicatedSpectrumIndecesToRemove_merge <- precursorIndecesToRemove
     
     end <- Sys.time()
@@ -2754,7 +2713,7 @@ processChemOnt <- function(substanceclasses, alternativeParents){
   ## alternative parents... see OBO.R
   ## iterate substance classes with path to taxonomy root
   library("ontologyIndex")
-  file <- "/home/htreutle/Downloads/MetSWATH/MONA/ClassyFire/ChemOnt_2_1.obo"
+  file <- "./data/ChemOnt_2_1.obo"
   oboIndex <- get_OBO(file = file)
   
   #alternativeParents <- "CHEMONTID:0003458; CHEMONTID:0004557; CHEMONTID:0000323; CHEMONTID:0003940; CHEMONTID:0000469; CHEMONTID:0004150"
@@ -2829,8 +2788,9 @@ processSpectraAndAnnotation <- function(fileSpectra, parameterSet, allowedInstru
     neutralLossesPrecursorToFragments = parameterSet$neutralLossesPrecursorToFragments,
     neutralLossesFragmentsToFragments = parameterSet$neutralLossesFragmentsToFragments
   )))
-  if(paramsHash == "da3c656b") paramsHash <- ""
-  else                         paramsHash <- paste("_", paramsHash, sep = "")
+  #if(paramsHash == "da3c656b") paramsHash <- ""
+  #else                         
+  paramsHash <- paste("_", paramsHash, sep = "")
   
   
   fileSpectraRData <- paste(substr(x = fileSpectra, start = 1, stop = regexpr(pattern = "\\.[a-zA-Z]{3,4}$", text = fileSpectra)[[1]] - 1), paramsHash, ".RData", sep = "")
@@ -2864,17 +2824,19 @@ processSpectraAndAnnotation <- function(fileSpectra, parameterSet, allowedInstru
   
   #######################################################################
   ## select instruments (e.g. sort out low resolution)
-  if(all(length(allowedInstrumentTypes) == 1, all(allowedInstrumentTypes == "all")))
-    isAllowedInstrumentType <- rep(x = TRUE, times = length(spectraList))
-  else
-    isAllowedInstrumentType <- unlist(lapply(X = spectraList, FUN = function(x){x$instrument %in% allowedInstrumentTypes}))
-  print(paste(sum(!isAllowedInstrumentType), "/", numberOfSpectra, "spectra arise from other instruments,", sum(isAllowedInstrumentType), "remain"))
-  
-  spectraList     <- spectraList[isAllowedInstrumentType]
-  numberOfSpectra <- length(spectraList)
-  precursorMz     <- precursorMz[isAllowedInstrumentType]
-  precursorRt     <- precursorRt[isAllowedInstrumentType]
-  
+#  if (FALSE) {
+#  if(all(length(allowedInstrumentTypes) == 1, all(allowedInstrumentTypes == "all"))) {
+#    isAllowedInstrumentType <- rep(x = TRUE, times = length(spectraList))
+#  }else{
+#    isAllowedInstrumentType <- unlist(lapply(X = spectraList, FUN = function(x){x$instrument %in% allowedInstrumentTypes}))
+#  }
+#  print(paste(sum(!isAllowedInstrumentType), "/", numberOfSpectra, "spectra arise from other instruments,", sum(isAllowedInstrumentType), "remain"))
+#  
+#  spectraList     <- spectraList[isAllowedInstrumentType]
+#  numberOfSpectra <- length(spectraList)
+#  precursorMz     <- precursorMz[isAllowedInstrumentType]
+#  precursorRt     <- precursorRt[isAllowedInstrumentType]
+#  }
   #######################################################################
   ## sort out unknown inchis
   noInchi    <- unlist(lapply(X = spectraList, FUN = function(x){x$inchi == ""}))
@@ -2936,26 +2898,27 @@ processSpectraAndAnnotation <- function(fileSpectra, parameterSet, allowedInstru
     stop(paste(usedStructureFormat, "not supported"))
   
   ## sort out spectra without annotation entry
-  if(FALSE){
-    structureWithEntry <- structures %in% annoTable[, usedStructureFormat]
-    print(paste(sum(!structureWithEntry), "/", numberOfSpectra, "spectra have no annotation entry,", sum(structureWithEntry), "remain"))
-    
-    spectraList     <- spectraList     [structureWithEntry]
-    numberOfSpectra <- length(spectraList)
-    precursorMz     <- precursorMz     [structureWithEntry]
-    precursorRt     <- precursorRt     [structureWithEntry]
-    inchis          <- inchis          [structureWithEntry]
-    structures      <- structures      [structureWithEntry]
-    
-    ## map annotations to spectra
-    mapping <- match(x = structures, table = annoTable[, usedStructureFormat])
-    annoTable <- annoTable[mapping, ]
-    annoTable[is.na(annoTable)] <- ""
-  } else {
+#  if(FALSE){
+#    structureWithEntry <- structures %in% annoTable[, usedStructureFormat]
+#    print(paste(sum(!structureWithEntry), "/", numberOfSpectra, "spectra have no annotation entry,", sum(structureWithEntry), "remain"))
+#    
+#    spectraList     <- spectraList     [structureWithEntry]
+#    numberOfSpectra <- length(spectraList)
+#    precursorMz     <- precursorMz     [structureWithEntry]
+#    precursorRt     <- precursorRt     [structureWithEntry]
+#    inchis          <- inchis          [structureWithEntry]
+#    structures      <- structures      [structureWithEntry]
+#    
+#    ## map annotations to spectra
+#    mapping <- match(x = structures, table = annoTable[, usedStructureFormat])
+#    annoTable <- annoTable[mapping, ]
+#    annoTable[is.na(annoTable)] <- ""
+#  } else {
     switch(usedStructureFormat,
            "InChI"={
              structuresPrefixes      <- inchisToTruncatedInchis(structures)
-             structuresPrefixesThere <- inchisToTruncatedInchis(annoTable[, usedStructureFormat])
+             #structuresPrefixesThere <- inchisToTruncatedInchis(annoTable[, usedStructureFormat])
+             structuresPrefixesThere <- structuresPrefixes
              mapping <- match(x = structuresPrefixes, table = structuresPrefixesThere)
              structureWithEntry <- !is.na(mapping)
              
@@ -3020,7 +2983,7 @@ processSpectraAndAnnotation <- function(fileSpectra, parameterSet, allowedInstru
            },
            stop(paste("Unknown structure format (", usedStructureFormat, ")!", sep = ""))
     )
-  }
+#  }
   
   ## inchis with anno
   #annoTable[is.na(annoTable[, "CHEMONT_name"]), "CHEMONT_name"] <- "NA"
@@ -3076,6 +3039,9 @@ inchiKeysToInchiKeysBlock1 <- function(inchiKeys){
 }
 inchisToTruncatedInchis <- function(inchis){
   ## remove inchi parts: version / formula / c / h / p / q / b / t/m / s / i/h / f / r
+	#print(inchis)
+	#print(typeof(inchis))
+	#if (is.null(inchis)) return("C")
   inchisSplitted <- strsplit(x = inchis, split = "/")
   structurePrefixes <- unlist(lapply(X = inchisSplitted, FUN = function(x){
     toTruncate <- grepl(pattern = "^[btmsifr].+", x = x)
@@ -3160,6 +3126,8 @@ fragmentStatistics <- function(matrix, classes){
   
   return(returnObj)
 }
+
+##############################################################################################
 evaluatePerformance <- function(predicted_scores, classes_pm_test, spectrumId_test){
   ## remove NA and replace Inf stuff
   isOut <- which(is.na(predicted_scores))
@@ -3184,38 +3152,38 @@ evaluatePerformance <- function(predicted_scores, classes_pm_test, spectrumId_te
   auc_pr   <- auc_pr$auc.integral
   #auc_roc2 <- PRROC::roc.curve(scores.class0 = predicted_scores[classes_pm_test=="+"], scores.class1 = predicted_scores[classes_pm_test=="-"])#, curve = T)
   
-  if(FALSE){
-    
-    ## auc
-    plot(perf, main=auc_roc)
-    segments(0,1,1,1, lty = 2)
-    segments(1,0,1,1, lty = 2)
-    
-    ## scores
-    ## plot cumulative scores distribution
-    posScores <- sort(predicted_scores[classes_pm_test=="+"])
-    negScores <- sort(predicted_scores[classes_pm_test=="-"])
-    plot(NA, xlim=range(c(posScores, negScores)), ylim=c(0,1))
-    lines(x = negScores, y = 1:length(negScores) / length(negScores), col="red")
-    lines(x = posScores, y = 1:length(posScores) / length(posScores), col="blue")
-    legend(x = 0.7, y = 0.15, legend = c("neg", "pos"), lwd = 1, col = c("red", "blue"))
-    #legend(x = min(predicted_scores), y = 1, legend = c("neg", "pos"), lwd = 1, col = c("red", "blue"))
-    
-    ## Histograms absolute
-    hist(negScores, col=rgb(1,0,0,0.5), breaks = 20, xlim=range(c(posScores, negScores)), ylim=c(0,max(hist(negScores, breaks = 20, plot = F)$counts)), xlab="score", ylab="absolute frequency")
-    hist(posScores, col=rgb(0,0,1,0.5), breaks = 20, add=T)
-    box()
-    
-    ## Histograms relative
-    h1 <- hist(negScores, breaks = 20, plot = F)
-    h2 <- hist(posScores, breaks = 20, plot = F)
-    h1$counts <- h1$counts / sum(h1$counts)
-    h2$counts <- h2$counts / sum(h2$counts)
-    
-    plot(NA, xlim=range(c(posScores, negScores)), ylim=c(0,max(c(h1$counts, h2$counts))), xlab="score", ylab="relative frequency")
-    plot(h1, col=rgb(1,0,0,0.5), add = T)
-    plot(h2, col=rgb(0,0,1,0.5), add = T)
-  }
+#  if(FALSE){
+#    
+#    ## auc
+#    plot(perf, main=auc_roc)
+#    segments(0,1,1,1, lty = 2)
+#    segments(1,0,1,1, lty = 2)
+#    
+#    ## scores
+#    ## plot cumulative scores distribution
+#    posScores <- sort(predicted_scores[classes_pm_test=="+"])
+#    negScores <- sort(predicted_scores[classes_pm_test=="-"])
+#    plot(NA, xlim=range(c(posScores, negScores)), ylim=c(0,1))
+#    lines(x = negScores, y = 1:length(negScores) / length(negScores), col="red")
+#    lines(x = posScores, y = 1:length(posScores) / length(posScores), col="blue")
+#    legend(x = 0.7, y = 0.15, legend = c("neg", "pos"), lwd = 1, col = c("red", "blue"))
+#    #legend(x = min(predicted_scores), y = 1, legend = c("neg", "pos"), lwd = 1, col = c("red", "blue"))
+#    
+#    ## Histograms absolute
+#    hist(negScores, col=rgb(1,0,0,0.5), breaks = 20, xlim=range(c(posScores, negScores)), ylim=c(0,max(hist(negScores, breaks = 20, plot = F)$counts)), xlab="score", ylab="absolute frequency")
+#    hist(posScores, col=rgb(0,0,1,0.5), breaks = 20, add=T)
+#    box()
+#    
+#    ## Histograms relative
+#    h1 <- hist(negScores, breaks = 20, plot = F)
+#    h2 <- hist(posScores, breaks = 20, plot = F)
+#    h1$counts <- h1$counts / sum(h1$counts)
+#    h2$counts <- h2$counts / sum(h2$counts)
+#    
+#    plot(NA, xlim=range(c(posScores, negScores)), ylim=c(0,max(c(h1$counts, h2$counts))), xlab="score", ylab="relative frequency")
+#    plot(h1, col=rgb(1,0,0,0.5), add = T)
+#    plot(h2, col=rgb(0,0,1,0.5), add = T)
+#  }
   
   ## TPR for FPR = 5%
   perf <- performance(prediction.obj = pred, measure = "tpr", x.measure = "fpr")
