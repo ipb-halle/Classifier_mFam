@@ -15,7 +15,7 @@ RUN locale-gen $LC_ALL
 RUN dpkg-reconfigure locales
 
 # Install packages
-RUN apt-get -y update && apt-get -y dist-upgrade && apt-get -y --allow-unauthenticated install apt-transport-https make gcc gfortran g++ libblas-dev liblapack-dev libxml++2.6-dev libexpat1-dev libxml2-dev libnetcdf-dev libssl-dev pkg-config wget curl git unzip zip python3 python3-pip r-base r-base-dev pandoc pandoc-data
+RUN apt-get -y update && apt-get -y dist-upgrade && apt-get -y --allow-unauthenticated install apt-transport-https make gcc gfortran g++ libblas-dev liblapack-dev libxml++2.6-dev libexpat1-dev libxml2-dev libnetcdf-dev libssl-dev pkg-config wget curl git unzip zip python3 python3-pip r-base r-base-dev pandoc pandoc-data openjdk-11-jdk
 
 # Install R packages
 RUN R -e 'install.packages(c("irlba","igraph","ggplot2","digest","lattice","XML","Rcpp","reshape2","plyr","stringi","stringr","intervals","devtools","RColorBrewer","plyr","RANN","knitr","ncdf4","microbenchmark","RUnit","foreach","doMC","curl","jsonlite","treemap","colourpicker","htmltools","shiny","shinyBS","shinyjs","DT","FactoMineR","slam","cba","squash","plotrix","plotly","circlize","matrixStats","Matrix","tools","ape","data.tree","plyr","data.table","kableExtra","htmlwidgets","sunburstR","SparseM","ROCR","PRROC","klaR","e1071","kohonen","nnet","rda","caret","caretEnsemble","RCurl","ontologyIndex"), repos="https://cloud.r-project.org/")'
