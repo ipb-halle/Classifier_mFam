@@ -51,7 +51,8 @@ if (length(args) < 3) {
 }
 
 # Working directory
-setwd(as.character(args[1]))
+workdir <- as.character(args[1])
+setwd(workdir)
 
 # Classifier Library, "./data/2018-02-13_neg_11328_MoNA_Spectra.msp", "./data/2018-02-13_pos_21908_MoNA_Spectra.msp"
 thisLibrary <- as.character(args[2])
@@ -72,13 +73,13 @@ resultFolderForClassifiers <- as.character(args[4])
 
 # ---------- Load MetFamily ----------
 # Load MetFamily
-source("MetFamily/FragmentMatrixFunctions.R")
-source("MetFamily/Annotation.R")
-source("MetFamily/DataProcessing.R")
+source(paste0(workdir,"/MetFamily/FragmentMatrixFunctions.R"))
+source(paste0(workdir,"/MetFamily/Annotation.R"))
+source(paste0(workdir,"/MetFamily/DataProcessing.R"))
 
 # Load MFam Classifier
-source("MFam/SubstanceClassClassifier.R")
-source("MFam/SubstanceClassClassifier_classifier.R")
+source(paste0(workdir,"/mFam/SubstanceClassClassifier.R"))
+source(paste0(workdir,"/mFam/SubstanceClassClassifier_classifier.R"))
 
 
 

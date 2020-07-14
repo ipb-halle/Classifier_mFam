@@ -38,6 +38,10 @@ RUN wget "https://cran.r-project.org/src/contrib/Archive/rda/rda_1.0.2-2.1.tar.g
 RUN apt-get -y --purge --auto-remove remove make gcc gfortran g++
 RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /tmp/* /var/tmp/*
 
+# Add scripts to docker
+ADD galaxy/*.r /usr/local/bin/
+
 # Add data
 ADD . /data
 WORKDIR /data
+
