@@ -96,8 +96,8 @@ source("MetFamily/Annotation.R")
 source("MetFamily/DataProcessing.R")
 
 # Load MFam Classifier
-source("MFam/SubstanceClassClassifier.R")
-source("MFam/SubstanceClassClassifier_classifier.R")
+source("mFam/SubstanceClassClassifier.R")
+source("mFam/SubstanceClassClassifier_classifier.R")
 
 
 
