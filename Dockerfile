@@ -24,6 +24,7 @@ RUN R -e 'install.packages(c("irlba","igraph","ggplot2","digest","lattice","XML"
 RUN R -e 'if (!requireNamespace("BiocManager", quietly = TRUE)) install.packages("BiocManager"); BiocManager::install(c("multtest","MSnbase","mzR","MassSpecWavelet","S4Vectors","BiocStyle","faahKO","msdata","xcms","CAMERA","mixOmics","pcaMethods"), ask=FALSE)'
 
 # Install development versions of R packages
+RUN R CMD javareconf
 RUN R -e 'devtools::install_github("https://github.com/MassBank/RMassBank")' && \
     R -e 'devtools::install_github(repo="CDK-R/rinchi@master")'
 
