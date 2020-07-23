@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <tool id="mfam-train-classifier" name="mfam-train-classifier" version="0.1">
   <requirements>
-    <container type="docker">korseby/mfam-train-classifier</container>
+    <container type="docker">ipb-halle/mfam-classifier</container>
   </requirements>
   <description>Train mFam Classifier</description>
   <stdio>
