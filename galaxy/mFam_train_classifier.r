@@ -14,6 +14,15 @@ options(stringAsfactors=FALSE, useFancyQuotes=FALSE)
 
 
 # ---------- Preparations ----------
+# Parallelization
+nSlaves <- parallel::detectCores(all.tests=FALSE, logical=FALSE)
+library(doParallel)
+#registerDoParallel(nSlaves)
+#cluster <- makePSOCKcluster(nSlaves)
+cluster <- makeCluster(nSlaves, setup_strategy="sequential", setup_timeout=10)
+registerDoParallel(cluster)
+setDefaultCluster(cluster)
+
 # Load libraries
 library(SparseM)
 library(slam)
@@ -38,10 +47,20 @@ library(squash)
 library(RCurl)
 library(ontologyIndex)
 library(tools)
+library(entropy)
+library(binda)
+library(party)
+library(MLmetrics)
 
 
 
 # ---------- Arguments and user variables ----------
+args <- list()
+args[1] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/"
+args[2] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/2018-02-13_pos_21908_MoNA_Spectra.msp"
+args[3] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/2019-05-23_Scaffolds.tsv"
+args[4] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/Classifier_ROC_Analysis"
+
 # Take in trailing command line arguments
 args <- commandArgs(trailingOnly=TRUE)
 if (length(args) < 3) {
@@ -51,8 +70,7 @@ if (length(args) < 3) {
 }
 
 # Working directory
-workdir <- as.character(args[1])
-setwd(workdir)
+setwd(as.character(args[1]))
 
 # Classifier Library, "./data/2018-02-13_neg_11328_MoNA_Spectra.msp", "./data/2018-02-13_pos_21908_MoNA_Spectra.msp"
 thisLibrary <- as.character(args[2])
@@ -73,13 +91,13 @@ resultFolderForClassifiers <- as.character(args[4])
 
 # ---------- Load MetFamily ----------
 # Load MetFamily
-source(paste0(workdir,"/MetFamily/FragmentMatrixFunctions.R"))
-source(paste0(workdir,"/MetFamily/Annotation.R"))
-source(paste0(workdir,"/MetFamily/DataProcessing.R"))
+source("MetFamily/FragmentMatrixFunctions.R")
+source("MetFamily/Annotation.R")
+source("MetFamily/DataProcessing.R")
 
 # Load MFam Classifier
-source(paste0(workdir,"/mFam/SubstanceClassClassifier.R"))
-source(paste0(workdir,"/mFam/SubstanceClassClassifier_classifier.R"))
+source("MFam/SubstanceClassClassifier.R")
+source("MFam/SubstanceClassClassifier_classifier.R")
 
 
 
@@ -99,8 +117,10 @@ proportionTraining <- 0.7
 fragmentColumnSelectionMethod <- "ProportionOfHighestFragmentPresence"
 minimumProportionOfPositiveFragments <- 0.05
 
-thisMethod <- "method=ColSumsPos; smoothIntensities=FALSE"
+#thisMethod <- "method=ColSumsPos; smoothIntensities=FALSE"
 #thisMethod <- "method=caret; smoothIntensities=FALSE, modelName=binda"
+thisMethod <- "method=caret; smoothIntensities=FALSE, classWeights=FALSE, modelName=binda"
+thisMethod <- "method=caret; smoothIntensities=FALSE, classWeights=FALSE, modelName=ctree"
 
 # I/O
 #resultFolderForClassifiers       <- "./data/Classifier_ROC_Analysis"
@@ -226,4 +246,6 @@ parameterSetAll <- list(
 
 # ---------- MFam Classifier ----------
 runTest(parameterSetAll = parameterSetAll)
+
+stopCluster(cluster)
 

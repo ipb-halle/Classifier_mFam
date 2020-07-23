@@ -103,7 +103,7 @@ caret_classifier <- list(
       #summaryFunction = caret::prSummary, 
       #summaryFunction = caret::twoClassSummary, 
       verboseIter = FALSE,
-      allowParallel = FALSE
+      allowParallel = TRUE
     )
     
     #modelProps <- caret::getModelInfo()[[modelName]]
@@ -216,7 +216,7 @@ caret_classifier_stacked <- list(
       #summaryFunction = caret::prSummary, 
       #summaryFunction = caret::twoClassSummary, 
       verboseIter = FALSE,
-      allowParallel = FALSE,
+      allowParallel = TRUE,
       savePredictions="final",
       #index=createResample(matrix_train_caret$class, 5)
       index=createResample(class, 5)
