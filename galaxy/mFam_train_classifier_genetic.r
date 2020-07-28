@@ -521,6 +521,8 @@ mFam_num_spectra <- read_msp(mFam_file)$numberOfSpectra
 #loadRmbSettings(RmbDefaultSettings())
 #mFam_lib <- RMassBank::msmsRead(files=mFam_file, readMethod="msp", mode="pH")
 
+# Read mFam library
+mFam_lib <- read_msp(mFam_file)
 ga_run_id <- 0
 
 # ---------- Evaluaton function of Genetic Algorithm fitness ----------
@@ -530,11 +532,8 @@ mFam_ga_fitness <- function(x) {
 	
 	# Create output dir
 	ga_run_id <- ga_run_id + 1
-	ga_out_dir <- paste0(out_dir,"/ga_",sprintf("%010s",ga_run_id))
+	ga_out_dir <- paste0(out_dir,"/ga_",sprintf("%08s",as.character(ga_run_id)))
 	dir.create(path=ga_out_dir, recursive=TRUE, mode="0755")
-	
-	# Read mFam library
-	mFam_lib <- read_msp(mFam_file)
 	
 	# Apply binary vector to mFam library
 	write_msp(msp_filename=paste0(ga_out_dir,"/","lib.msp"), msp_lib=mFam_lib, indices=x)
