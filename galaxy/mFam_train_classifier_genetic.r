@@ -523,7 +523,8 @@ mFam_ga_fitness <- function(x) {
 	
 	# Create output dir
 	ga_run_id <- ga_run_id + 1
-	ga_out_dir <- paste0(out_dir,"/ga_",sprintf("%08s",as.character(ga_run_id)))
+	#ga_out_dir <- paste0(out_dir,"/ga_",sprintf("%08s",as.character(ga_run_id)))
+	ga_out_dir <- paste0(out_dir,"/ga_", formatC(as.numeric(ga_run_id), width=8, format="d", flag="0"))
 	dir.create(path=ga_out_dir, recursive=TRUE, mode="0755")
 	
 	print(ga_out_dir)
