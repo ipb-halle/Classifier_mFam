@@ -512,18 +512,6 @@ write_msp <- function(msp_filename, msp_lib, indices=NULL) {
 }
 
 
-mFam_num_spectra <- read_msp(mFam_file)$numberOfSpectra
-#x <- rep(0,mFam_num_spectra)
-#x[1:100] <- 1
-#devtools::install_github("https://github.com/MassBank/RMassBank")
-#library(RMassBank)
-#RmbSettingsTemplate("RMB_options.ini")#, package="RMassBank")
-#loadRmbSettings(RmbDefaultSettings())
-#mFam_lib <- RMassBank::msmsRead(files=mFam_file, readMethod="msp", mode="pH")
-
-# Read mFam library
-mFam_lib <- read_msp(mFam_file)
-ga_run_id <- 0
 
 # ---------- Evaluaton function of Genetic Algorithm fitness ----------
 mFam_ga_fitness <- function(x) {
@@ -535,28 +523,36 @@ mFam_ga_fitness <- function(x) {
 	ga_out_dir <- paste0(out_dir,"/ga_",sprintf("%08s",as.character(ga_run_id)))
 	dir.create(path=ga_out_dir, recursive=TRUE, mode="0755")
 	
+	print(ga_out_dir)
+	print(x)
+	
 	# Apply binary vector to mFam library
 	write_msp(msp_filename=paste0(ga_out_dir,"/","lib.msp"), msp_lib=mFam_lib, indices=x)
 	gen_mFam_lib <- read_msp(paste0(ga_out_dir,"/","lib.msp"))
 	
 	# Execute mFam classifier
-	#gen_mFam_exec <- system2(command="./galaxy/mFam_train_classifier.r",
-	#						 args=c("./",
-	#						 	   paste0(ga_out_dir,"/","lib.msp"),
-	#						 	   "./data/2019-05-23_Scaffolds.tsv",
-	#						 	   paste0(out_dir,"/ga_01")),
-	#						 wait=TRUE, timeout=0)
-	gen_mFam_exec <- system2(command="docker",
-							 args=c("run",
-							 	   "-ti",
-							 	   "-v",
-							 	   "/data/mFam-Classifier:/data/mFam-Classifier",
-							 	   "ipb-halle/mfam-classifier",
-							 	   "/usr/local/bin/mFam_train_classifier.sh",
-							 	   paste0("/data/mFam-Classifier/",ga_out_dir,"/","lib.msp"),
-							 	   paste0("/data/mFam-Classifier/","./data/2019-05-23_Scaffolds.tsv"),
-							 	   paste0("/data/mFam-Classifier/",ga_out_dir,"/ga_01")),
-							 wait=TRUE, timeout=0)
+	if (exec_docker == FALSE) {
+		gen_mFam_exec <- system2(command="./galaxy/mFam_train_classifier.r",
+								 args=c(out_dir,
+								 	   paste0(ga_out_dir,"/lib.msp"),
+								 	   paste0(out_dir,"/data/2019-05-23_Scaffolds.tsv"),
+								 	   paste0(ga_out_dir)),
+								 wait=TRUE, timeout=0)
+	} else {
+		gen_mFam_exec <- system2(command="docker",
+								 args=c("run",
+								 	   "-ti",
+								 	   "-v",
+								 	   "/data/mFam-Classifier:/data/mFam-Classifier",
+								 	   "ipb-halle/mfam-classifier",
+								 	   "/usr/local/bin/mFam_train_classifier.sh",
+								 	   paste0(ga_out_dir,"/lib.msp"),
+								 	   paste0(out_dir,"/data/2019-05-23_Scaffolds.tsv"),
+								 	   paste0(ga_out_dir,"/out_obj.rdata"),
+								 	   paste0(ga_out_dir,"/out_obj.tsv"),
+								 	   paste0(ga_out_dir,"/out_obj.txt")),
+								 wait=TRUE, timeout=0)
+	}
 	if ((gen_mFam_exec$status != 0) | (gen_mFam_exec$status == 127)) {
 		print(paste0("Warning. GA run #", ga_out_dir, " exited with errors."))
 		fitness_score <- 0
@@ -576,10 +572,18 @@ mFam_ga_fitness <- function(x) {
 	}
 	
 	# Calculate fitness score
-	fitness_score <- score_auc_pr
+	fitness_score <- score_auc_pr / score_num_classes
 	
 	return(fitness_score)
 }
+
+
+
+# ---------- Read mFam library ----------
+mFam_lib <- read_msp(mFam_file)
+mFam_num_spectra <- mFam_lib$numberOfSpectra
+ga_run_id <- 0
+exec_docker <- FALSE
 
 # ---------- Perform Genetic Algorithm here ----------
 model_ga <- ga(type="binary",          # Optimization data type
@@ -599,8 +603,8 @@ model_ga <- ga(type="binary",          # Optimization data type
 plot(model_ga, main="Genetic Algorithm Performance", cex.points=0.9, col=c("dodgerblue4", "dodgerblue3",  adjustcolor("dodgerblue2", alpha.f=0.1)), pch=c(19,16), lty=c(1,2), legend=TRUE, grid=graphics:::grid)
 summary(model_ga)
 best_ga_solution <- as.numeric(model_ga@solution[1,])
-knapsack[best_ga_solution == 1, ]
-cat(best_ga_solution %*% knapsack$survivalpoints)
-cat(best_ga_solution %*% knapsack$weight)
+#knapsack[best_ga_solution == 1, ]
+#cat(best_ga_solution %*% knapsack$survivalpoints)
+#cat(best_ga_solution %*% knapsack$weight)
 
 
