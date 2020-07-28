@@ -548,17 +548,17 @@ mFam_ga_fitness <- function(x) {
 								 args=c("run",
 								 	   "-ti",
 								 	   "-v",
-								 	   "/data/mFam-Classifier:/data/mFam-Classifier",
+								 	   paste0(getwd(),":",getwd()),
 								 	   "ipb-halle/mfam-classifier",
 								 	   "/usr/local/bin/mFam_train_classifier.sh",
 								 	   paste0(ga_out_dir,"/lib.msp"),
-								 	   paste0(out_dir,"/data/2019-05-23_Scaffolds.tsv"),
+								 	   paste0(getwd(),"/data/2019-05-23_Scaffolds.tsv"),
 								 	   paste0(ga_out_dir,"/out_obj.rdata"),
 								 	   paste0(ga_out_dir,"/out_obj.tsv"),
 								 	   paste0(ga_out_dir,"/out_obj.txt")),
 								 wait=TRUE, timeout=0)
 	}
-	if ((gen_mFam_exec$status != 0) | (gen_mFam_exec$status == 127)) {
+	if ((gen_mFam_exec != 0) | (gen_mFam_exec == 127)) {
 		print(paste0("Warning. GA run #", ga_out_dir, " exited with errors."))
 		fitness_score <- 0
 		return(fitness_score)
@@ -578,6 +578,8 @@ mFam_ga_fitness <- function(x) {
 	
 	# Calculate fitness score
 	fitness_score <- score_auc_pr / score_num_classes
+	
+	print(paste0("GA #", ga_out_dir, ", Fitness Score: ", fitness_score))
 	
 	return(fitness_score)
 }
@@ -600,7 +602,7 @@ model_ga <- ga(type="binary",          # Optimization data type
 			   maxiter=10,             # Max iterations
 			   monitor=gaMonitor,      # Monitoring of intermediate results: plot | gaMonitor | FALSE
 			   keepBest=TRUE,          # Keep the best solution at the end
-			   parallel=TRUE           # Allow parallel procesing
+			   parallel=F           # Allow parallel procesing
 )
 
 # Print summary on Genetic Algorithm
