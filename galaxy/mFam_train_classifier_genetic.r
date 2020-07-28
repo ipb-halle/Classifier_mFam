@@ -26,11 +26,11 @@ library(GA)
 
 
 # ---------- Arguments and user variables ----------
-args <- list()
-args[1] <- "~/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier"
-args[2] <- "data/2018-02-13_pos_21908_MoNA_Spectra.msp"
-args[3] <- "data/2019-05-23_Scaffolds.tsv"
-args[4] <- "data/ga_output"
+#args <- list()
+#args[1] <- "~/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier"
+#args[2] <- "data/2018-02-13_pos_21908_MoNA_Spectra.msp"
+#args[3] <- "data/2019-05-23_Scaffolds.tsv"
+#args[4] <- "data/ga_output"
 
 # Take in trailing command line arguments
 args <- commandArgs(trailingOnly=TRUE)
@@ -488,23 +488,23 @@ write_msp <- function(msp_filename, msp_lib, indices=NULL) {
 	msp_file <- NULL
 	for (msp_entry in 1:msp_lib_len) {
 		# Do not write spectra with index of 0
-		if (indices[msp_entry] == 0) break
-		
-		msp_file[length(msp_file)+1] <- paste0("NAME: ", msp_lib[[2]][[msp_entry]]$name)
-		msp_file[length(msp_file)+1] <- paste0("RETENTIONTIME: ", msp_lib[[2]][[msp_entry]]$rt)
-		msp_file[length(msp_file)+1] <- paste0("PRECURSORMZ: ", msp_lib[[2]][[msp_entry]]$mz)
-		msp_file[length(msp_file)+1] <- paste0("PRECURSORTYPE: ", msp_lib[[2]][[msp_entry]]$adduct)
-		msp_file[length(msp_file)+1] <- paste0("IONMODE: ", msp_lib[[2]][[msp_entry]]$adduct)
-		msp_file[length(msp_file)+1] <- paste0("INCHIKEY: ", msp_lib[[2]][[msp_entry]]$inchikey)
-		msp_file[length(msp_file)+1] <- paste0("INCHI: ", msp_lib[[2]][[msp_entry]]$inchi)
-		msp_file[length(msp_file)+1] <- paste0("SMILES: ", msp_lib[[2]][[msp_entry]]$smiles)
-		msp_file[length(msp_file)+1] <- paste0("INTENSITY: ", msp_lib[[2]][[msp_entry]]$ms1Int)
-		msp_file[length(msp_file)+1] <- paste0("INSTRUMENTTYPE: ", msp_lib[[2]][[msp_entry]]$instrumentType)
-		msp_file[length(msp_file)+1] <- paste0("Num Peaks: ", msp_lib[[2]][[msp_entry]]$peakNumber)
-		for (peak in unlist(strsplit(msp_lib[[2]][[msp_entry]]$spectrumString, ";"))) {
-			msp_file[length(msp_file)+1] <- gsub(x=peak, pattern=" ", replacement="\t")
+		if (indices[msp_entry] == 1) {
+			msp_file[length(msp_file)+1] <- paste0("NAME: ", msp_lib[[2]][[msp_entry]]$name)
+			msp_file[length(msp_file)+1] <- paste0("RETENTIONTIME: ", msp_lib[[2]][[msp_entry]]$rt)
+			msp_file[length(msp_file)+1] <- paste0("PRECURSORMZ: ", msp_lib[[2]][[msp_entry]]$mz)
+			msp_file[length(msp_file)+1] <- paste0("PRECURSORTYPE: ", msp_lib[[2]][[msp_entry]]$adduct)
+			msp_file[length(msp_file)+1] <- paste0("IONMODE: ", msp_lib[[2]][[msp_entry]]$adduct)
+			msp_file[length(msp_file)+1] <- paste0("INCHIKEY: ", msp_lib[[2]][[msp_entry]]$inchikey)
+			msp_file[length(msp_file)+1] <- paste0("INCHI: ", msp_lib[[2]][[msp_entry]]$inchi)
+			msp_file[length(msp_file)+1] <- paste0("SMILES: ", msp_lib[[2]][[msp_entry]]$smiles)
+			msp_file[length(msp_file)+1] <- paste0("INTENSITY: ", msp_lib[[2]][[msp_entry]]$ms1Int)
+			msp_file[length(msp_file)+1] <- paste0("INSTRUMENTTYPE: ", msp_lib[[2]][[msp_entry]]$instrumentType)
+			msp_file[length(msp_file)+1] <- paste0("Num Peaks: ", msp_lib[[2]][[msp_entry]]$peakNumber)
+			for (peak in unlist(strsplit(msp_lib[[2]][[msp_entry]]$spectrumString, ";"))) {
+				msp_file[length(msp_file)+1] <- gsub(x=peak, pattern=" ", replacement="\t")
+			}
+			msp_file[length(msp_file)+1] <- ""	
 		}
-		msp_file[length(msp_file)+1] <- ""	
 	}
 	
 	# Save file
@@ -515,6 +515,9 @@ write_msp <- function(msp_filename, msp_lib, indices=NULL) {
 
 # ---------- Evaluaton function of Genetic Algorithm fitness ----------
 mFam_ga_fitness <- function(x) {
+	# Options
+	exec_docker <- FALSE
+	
 	# Define fitness score
 	fitness_score <- 0
 	
@@ -524,6 +527,7 @@ mFam_ga_fitness <- function(x) {
 	dir.create(path=ga_out_dir, recursive=TRUE, mode="0755")
 	
 	print(ga_out_dir)
+	x <- round(runif(mFam_num_spectra,0,1), 0)
 	print(x)
 	
 	# Apply binary vector to mFam library
@@ -533,9 +537,9 @@ mFam_ga_fitness <- function(x) {
 	# Execute mFam classifier
 	if (exec_docker == FALSE) {
 		gen_mFam_exec <- system2(command="./galaxy/mFam_train_classifier.r",
-								 args=c(out_dir,
+								 args=c(getwd(),
 								 	   paste0(ga_out_dir,"/lib.msp"),
-								 	   paste0(out_dir,"/data/2019-05-23_Scaffolds.tsv"),
+								 	   paste0(getwd(),"/data/2019-05-23_Scaffolds.tsv"),
 								 	   paste0(ga_out_dir)),
 								 wait=TRUE, timeout=0)
 	} else {
@@ -583,7 +587,6 @@ mFam_ga_fitness <- function(x) {
 mFam_lib <- read_msp(mFam_file)
 mFam_num_spectra <- mFam_lib$numberOfSpectra
 ga_run_id <- 0
-exec_docker <- FALSE
 
 # ---------- Perform Genetic Algorithm here ----------
 model_ga <- ga(type="binary",          # Optimization data type
