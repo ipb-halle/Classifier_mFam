@@ -541,11 +541,22 @@ mFam_ga_fitness <- function(x) {
 	gen_mFam_lib <- read_msp(paste0(ga_out_dir,"/","lib.msp"))
 	
 	# Execute mFam classifier
-	gen_mFam_exec <- system2(command="./galaxy/mFam_train_classifier.r",
-							 args=c("./",
-							 	   paste0(ga_out_dir,"/","lib.msp"),
-							 	   "./data/2019-05-23_Scaffolds.tsv",
-							 	   paste0(out_dir,"/ga_01")),
+	#gen_mFam_exec <- system2(command="./galaxy/mFam_train_classifier.r",
+	#						 args=c("./",
+	#						 	   paste0(ga_out_dir,"/","lib.msp"),
+	#						 	   "./data/2019-05-23_Scaffolds.tsv",
+	#						 	   paste0(out_dir,"/ga_01")),
+	#						 wait=TRUE, timeout=0)
+	gen_mFam_exec <- system2(command="docker",
+							 args=c("run",
+							 	   "-ti",
+							 	   "-v",
+							 	   "/data/mFam-Classifier:/data/mFam-Classifier",
+							 	   "ipb-halle/mfam-classifier",
+							 	   "/usr/local/bin/mFam_train_classifier.sh",
+							 	   paste0("/data/mFam-Classifier/",ga_out_dir,"/","lib.msp"),
+							 	   paste0("/data/mFam-Classifier/","./data/2019-05-23_Scaffolds.tsv"),
+							 	   paste0("/data/mFam-Classifier/",ga_out_dir,"/ga_01")),
 							 wait=TRUE, timeout=0)
 	if ((gen_mFam_exec$status != 0) | (gen_mFam_exec$status == 127)) {
 		print(paste0("Warning. GA run #", ga_out_dir, " exited with errors."))

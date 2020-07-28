@@ -19,10 +19,12 @@ echo "    outputdir: /data/data/Classifier_ROC_Analysis/";
 echo "    mfamrdata: $mfamrdata";
 echo "    mfamres: $mfamres";
 echo "    mfaminfo: $mfaminfo";
-;
+
 mkdir -p /data/data/Classifier_ROC_Analysis;
 mkdir -p /data/data/MetFamily_class_projects;
 mFam_train_classifier.r /data/ $classlib $annofile /data/data/Classifier_ROC_Analysis/;
 cp -f /data/data/Classifier_ROC_Analysis/*.RData $mfamrdata;
 cp -f /data/data/Classifier_ROC_Analysis/*.tsv $mfamres;
 cp -f /data/data/Classifier_ROC_Analysis/*.txt $mfaminfo;
+
+
