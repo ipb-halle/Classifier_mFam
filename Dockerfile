@@ -41,3 +41,8 @@ RUN apt-get -y clean && apt-get -y autoremove && rm -rf /var/lib/{cache,log}/ /t
 # Add data
 ADD . /data
 WORKDIR /data
+
+# Add scripts
+ADD galaxy/mFam_train_classifier.r /usr/local/bin
+ADD galaxy/mFam_train_classifier.sh /usr/local/bin
+

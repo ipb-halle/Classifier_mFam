@@ -15,13 +15,16 @@ options(stringAsfactors=FALSE, useFancyQuotes=FALSE)
 
 # ---------- Preparations ----------
 # Parallelization
+library(parallel)
 nSlaves <- parallel::detectCores(all.tests=FALSE, logical=FALSE)
-library(doParallel)
+#library(doParallel)
 #registerDoParallel(nSlaves)
-#cluster <- makePSOCKcluster(nSlaves)
-cluster <- makeCluster(nSlaves, setup_strategy="sequential", setup_timeout=10)
-registerDoParallel(cluster)
-setDefaultCluster(cluster)
+##cluster <- makePSOCKcluster(nSlaves)
+#cluster <- makeCluster(nSlaves, setup_strategy="sequential", setup_timeout=10)
+#registerDoParallel(cluster)
+#setDefaultCluster(cluster)
+library(doMC)
+registerDoMC(nSlaves)
 
 # Load libraries
 library(SparseM)
@@ -55,11 +58,11 @@ library(MLmetrics)
 
 
 # ---------- Arguments and user variables ----------
-args <- list()
-args[1] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/"
-args[2] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/2018-02-13_pos_21908_MoNA_Spectra.msp"
-args[3] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/2019-05-23_Scaffolds.tsv"
-args[4] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/Classifier_ROC_Analysis"
+#args <- list()
+#args[1] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/"
+#args[2] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/2018-02-13_pos_21908_MoNA_Spectra.msp"
+#args[3] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/2019-05-23_Scaffolds.tsv"
+#args[4] <- "/Users/kristian/Desktop/Projekte/Habilitation/de.NBI/mFam-Classifier/data/Classifier_ROC_Analysis"
 
 # Take in trailing command line arguments
 args <- commandArgs(trailingOnly=TRUE)
@@ -117,10 +120,10 @@ proportionTraining <- 0.7
 fragmentColumnSelectionMethod <- "ProportionOfHighestFragmentPresence"
 minimumProportionOfPositiveFragments <- 0.05
 
-#thisMethod <- "method=ColSumsPos; smoothIntensities=FALSE"
+thisMethod <- "method=ColSumsPos; smoothIntensities=FALSE"
 #thisMethod <- "method=caret; smoothIntensities=FALSE, modelName=binda"
-thisMethod <- "method=caret; smoothIntensities=FALSE, classWeights=FALSE, modelName=binda"
-thisMethod <- "method=caret; smoothIntensities=FALSE, classWeights=FALSE, modelName=ctree"
+#thisMethod <- "method=caret; smoothIntensities=FALSE, classWeights=FALSE, modelName=binda"
+#thisMethod <- "method=caret; smoothIntensities=FALSE, classWeights=FALSE, modelName=ctree"
 
 # I/O
 #resultFolderForClassifiers       <- "./data/Classifier_ROC_Analysis"
@@ -247,5 +250,5 @@ parameterSetAll <- list(
 # ---------- MFam Classifier ----------
 runTest(parameterSetAll = parameterSetAll)
 
-stopCluster(cluster)
+#stopCluster(cluster)
 
