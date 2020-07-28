@@ -602,7 +602,7 @@ model_ga <- ga(type="binary",          # Optimization data type
 			   maxiter=10,             # Max iterations
 			   monitor=gaMonitor,      # Monitoring of intermediate results: plot | gaMonitor | FALSE
 			   keepBest=TRUE,          # Keep the best solution at the end
-			   parallel=F           # Allow parallel procesing
+			   parallel=TRUE           # Allow parallel procesing
 )
 
 # Print summary on Genetic Algorithm
