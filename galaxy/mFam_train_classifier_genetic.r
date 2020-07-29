@@ -599,12 +599,12 @@ mFam_num_spectra <- mFam_lib$numberOfSpectra
 # ---------- Perform Genetic Algorithm here ----------
 model_ga <- ga(type="binary",          # Optimization data type
 			   fitness=mFam_ga_fitness,# Fitness function
-			   elitism=30,             # Number of best individuals (compounds) to pass to next iteration
+			   #elitism=30,             # Number of best individuals (compounds) to pass to next iteration
 			   pmutation=1/100,        # Mutation rate probability
-			   popSize=100,            # Number of individuals / solutions
+			   #popSize=100,            # Number of individuals / solutions
 			   nBits=mFam_num_spectra, # Total number of variables in compound matrix
 			   run=10,                 # Max iterations without improvement (stopping criteria)
-			   maxiter=1000,           # Max iterations
+			   maxiter=20,           # Max iterations
 			   monitor=gaMonitor,      # Monitoring of intermediate results: plot | gaMonitor | FALSE
 			   keepBest=TRUE,          # Keep the best solution at the end
 			   parallel=TRUE           # Allow parallel procesing

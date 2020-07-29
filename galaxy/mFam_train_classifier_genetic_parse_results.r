@@ -17,7 +17,7 @@ options(stringAsfactors=FALSE, useFancyQuotes=FALSE)
 gen_mFam_results_files <- list.files(".", pattern="*", recursive=TRUE, full.names=TRUE)
 gen_mFam_results_files <- gen_mFam_results_files[grep(".*Results\\.tsv", gen_mFam_results_files, invert=FALSE)]
 
-gen_mFam_result_table <- data.frame(filename=0, score=0)
+gen_mFam_result_table <- data.frame(filename=0, score=0, compounds=0)
 for (i in gen_mFam_results_files) {
 	gen_mFam_results <- read.table(file=i, sep='\t', header=TRUE, stringsAsFactors=TRUE, fill=TRUE)
 	
@@ -34,9 +34,11 @@ for (i in gen_mFam_results_files) {
 	print(paste0("GA file ", i, ", Fitness Score: ", fitness_score))
 	gen_mFam_result_table[nrow(gen_mFam_result_table)+1, "filename"] <- as.character(i)
 	gen_mFam_result_table[nrow(gen_mFam_result_table), "score"] <- as.numeric(fitness_score)
+	gen_mFam_result_table[nrow(gen_mFam_result_table), "compounds"] <- nrow(gen_mFam_results)
 }
 
 gen_mFam_results_max <- read.table(file=gen_mFam_result_table$filename[which.max(gen_mFam_result_table$score)], sep='\t', header=TRUE, stringsAsFactors=TRUE, fill=TRUE)
 print("")
+#print(gen_mFam_results_max[, c("Substance.class", "AUC.PR")])
+print(paste0("Variaton of compounds in libraries: ", gen_mFam_result_table$compounds[which.min(gen_mFam_result_table$compounds)], " < ", mean(gen_mFam_result_table$compounds, na.rm=TRUE), " < ", gen_mFam_result_table$compounds[which.max(gen_mFam_result_table$compounds)]))
 print(paste0("Compound library with maximum score: ", gen_mFam_result_table$filename[which.max(gen_mFam_result_table$score)]))
-print(gen_mFam_results_max[, c("Substance.class", "AUC.PR")])
