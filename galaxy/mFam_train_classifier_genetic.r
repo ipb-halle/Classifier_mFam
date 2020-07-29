@@ -558,11 +558,11 @@ mFam_ga_fitness <- function(x) {
 								 	   paste0(ga_out_dir,"/out_obj.txt")),
 								 wait=TRUE, timeout=0)
 	}
-	if ((gen_mFam_exec != 0) | (gen_mFam_exec == 127)) {
-		print(paste0("Warning. GA run #", ga_out_dir, " exited with errors."))
-		fitness_score <- 0
-		return(fitness_score)
-	}
+	#if ((gen_mFam_exec != 0) | (gen_mFam_exec == 127)) {
+	#	print(paste0("Warning. GA run #", ga_out_dir, " exited with errors."))
+	#	fitness_score <- 0
+	#	return(fitness_score)
+	#}
 	
 	# Evaluate mFam classifier results
 	gen_mFam_results_file <- list.files(ga_out_dir, pattern="*Results.tsv", recursive=FALSE, full.names=TRUE)
@@ -571,12 +571,15 @@ mFam_ga_fitness <- function(x) {
 		return(fitness_score)
 	} else {
 		gen_mFam_results <- read.table(file=gen_mFam_results_file, sep='\t', header=TRUE, stringsAsFactors=TRUE, fill=TRUE)
-		score_auc_pr <- sum(gen_mFam_results$AUC.PR)
+		score_auc_pr <- sum(gen_mFam_results$AUC.PR, na.rm=TRUE)
 		score_num_classes <- nrow(gen_mFam_results)
-		score_tpr <- sum(gen_mFam_results$TPR.for.FPR...5.)
+		score_tpr <- sum(gen_mFam_results$TPR.for.FPR...5., na.rm=TRUE)
 	}
 	
 	# Calculate fitness score
+	if (! is.numeric(score_auc_pr)) score_auc_pr <- 0
+	if (! is.numeric(score_tpr)) score_tpr <- 0
+	if ((! is.numeric(score_num_classes)) | (score_num_classes < 1)) score_num_classes <- 1
 	fitness_score <- score_auc_pr / score_num_classes
 	
 	print(paste0("GA #", ga_out_dir, ", Fitness Score: ", fitness_score))
