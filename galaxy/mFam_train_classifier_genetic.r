@@ -521,15 +521,15 @@ mFam_ga_fitness <- function(x) {
 	# Define fitness score
 	fitness_score <- 0
 	
-	# Create output dir
-	ga_run_id <- ga_run_id + 1
-	#ga_out_dir <- paste0(out_dir,"/ga_",sprintf("%08s",as.character(ga_run_id)))
-	ga_out_dir <- paste0(out_dir,"/ga_", formatC(as.numeric(ga_run_id), width=8, format="d", flag="0"))
+	# Create random id and output dir
+	ga_run_id <- as.character(formatC(sample.int(99999999, 1), width=8, format="d", flag="0"))
+	print(paste0("Running GA #", ga_run_id, "..."))
+	ga_out_dir <- paste0(out_dir,"/ga_", ga_run_id)
 	dir.create(path=ga_out_dir, recursive=TRUE, mode="0755")
 	
-	print(ga_out_dir)
-	x <- round(runif(mFam_num_spectra,0,1), 0)
-	print(x)
+	#print(ga_out_dir)
+	#x <- round(runif(mFam_num_spectra,0,1), 0)
+	#print(x)
 	
 	# Apply binary vector to mFam library
 	write_msp(msp_filename=paste0(ga_out_dir,"/","lib.msp"), msp_lib=mFam_lib, indices=x)
@@ -592,7 +592,6 @@ mFam_ga_fitness <- function(x) {
 # ---------- Read mFam library ----------
 mFam_lib <- read_msp(mFam_file)
 mFam_num_spectra <- mFam_lib$numberOfSpectra
-ga_run_id <- 0
 
 # ---------- Perform Genetic Algorithm here ----------
 model_ga <- ga(type="binary",          # Optimization data type
@@ -609,9 +608,14 @@ model_ga <- ga(type="binary",          # Optimization data type
 )
 
 # Print summary on Genetic Algorithm
+pdf(file=paste0(getwd(),"/data/ga_plot.pdf"), encoding="ISOLatin1", pointsize=8, width=6, height=6, family="Helvetica")
 plot(model_ga, main="Genetic Algorithm Performance", cex.points=0.9, col=c("dodgerblue4", "dodgerblue3",  adjustcolor("dodgerblue2", alpha.f=0.1)), pch=c(19,16), lty=c(1,2), legend=TRUE, grid=graphics:::grid)
-summary(model_ga)
+dev.off()
+print(summary(model_ga))
 best_ga_solution <- as.numeric(model_ga@solution[1,])
+print(best_ga_solution)
+save(file=paste0(getwd(),"/data/ga.rdata"))
+
 #knapsack[best_ga_solution == 1, ]
 #cat(best_ga_solution %*% knapsack$survivalpoints)
 #cat(best_ga_solution %*% knapsack$weight)
