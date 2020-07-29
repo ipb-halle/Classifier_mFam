@@ -16,7 +16,7 @@ options(stringAsfactors=FALSE, useFancyQuotes=FALSE)
 # ---------- Preparations ----------
 # Parallelization
 library(parallel)
-nSlaves <- parallel::detectCores(all.tests=FALSE, logical=FALSE)
+nSlaves <- parallel::detectCores(all.tests=FALSE, logical=TRUE)
 library(doMC)
 registerDoMC(nSlaves)
 
@@ -542,6 +542,8 @@ mFam_ga_fitness <- function(x) {
 								 	   paste0(ga_out_dir,"/lib.msp"),
 								 	   paste0(getwd(),"/data/2019-05-23_Scaffolds.tsv"),
 								 	   paste0(ga_out_dir)),
+								 stdout=paste0(ga_out_dir,"/stdout.txt"),
+								 stderr=paste0(ga_out_dir,"/stderr.txt"),
 								 wait=TRUE, timeout=0)
 	} else {
 		gen_mFam_exec <- system2(command="docker",
@@ -567,8 +569,9 @@ mFam_ga_fitness <- function(x) {
 	# Evaluate mFam classifier results
 	gen_mFam_results_file <- list.files(ga_out_dir, pattern="*Results.tsv", recursive=FALSE, full.names=TRUE)
 	if (length(gen_mFam_results_file) == 0) {
-		fitness_score <- 0
-		return(fitness_score)
+		score_auc_pr <- 0
+		score_num_classes <- 1
+		score_tpr <- 0
 	} else {
 		gen_mFam_results <- read.table(file=gen_mFam_results_file, sep='\t', header=TRUE, stringsAsFactors=TRUE, fill=TRUE)
 		score_auc_pr <- sum(gen_mFam_results$AUC.PR, na.rm=TRUE)
@@ -596,12 +599,12 @@ mFam_num_spectra <- mFam_lib$numberOfSpectra
 # ---------- Perform Genetic Algorithm here ----------
 model_ga <- ga(type="binary",          # Optimization data type
 			   fitness=mFam_ga_fitness,# Fitness function
-			   elitism=3,              # Number of best individuals (compounds) to pass to next iteration
+			   elitism=30,             # Number of best individuals (compounds) to pass to next iteration
 			   pmutation=1/100,        # Mutation rate probability
-			   popSize=10,             # Number of individuals / solutions
+			   popSize=100,            # Number of individuals / solutions
 			   nBits=mFam_num_spectra, # Total number of variables in compound matrix
 			   run=10,                 # Max iterations without improvement (stopping criteria)
-			   maxiter=10,             # Max iterations
+			   maxiter=1000,           # Max iterations
 			   monitor=gaMonitor,      # Monitoring of intermediate results: plot | gaMonitor | FALSE
 			   keepBest=TRUE,          # Keep the best solution at the end
 			   parallel=TRUE           # Allow parallel procesing
