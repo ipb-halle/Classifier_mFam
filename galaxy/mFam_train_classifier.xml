@@ -9,7 +9,7 @@
     <exit_code range="1:" level="fatal" description="Tool error" />
   </stdio>
   <command><![CDATA[
-echo "INPUT"
+echo "INPUT";
 echo "    workingdir: /data/";
 echo "    classlib: $classlib";
 echo "    annofile: $annofile";
